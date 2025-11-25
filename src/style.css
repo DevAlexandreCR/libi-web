@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f7f8fb;
+  --fg: #0f172a;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(52, 92, 255, 0.08), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(255, 148, 29, 0.12), transparent 22%),
+    var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+.card {
+  @apply bg-white/90 backdrop-blur border border-border rounded-2xl shadow-card;
+}
+
+.section {
+  @apply max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16;
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-lg border border-white/60;
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #345cff 0%, #ff941d 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
