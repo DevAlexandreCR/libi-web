@@ -77,7 +77,7 @@ const logout = () => {
             <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface border border-border">
               <div>
                 <p class="text-xs text-slate-500">{{ auth.user?.email }}</p>
-                <p class="text-sm font-semibold">{{ auth.user?.name }}</p>
+                <p class="text-sm font-semibold">{{ auth.user?.role }}</p>
               </div>
               <BaseButton variant="ghost" icon="power-off" @click="logout">
                 {{ t('common.signOut') }}

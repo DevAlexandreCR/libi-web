@@ -13,11 +13,7 @@ export interface LoginResponse {
 
 export const authApi = {
   async login(payload: LoginPayload): Promise<LoginResponse> {
-    const { data } = await http.post('/api/auth/login', payload)
-    return data
-  },
-  async currentUser(): Promise<User> {
-    const { data } = await http.get('/api/auth/me')
+    const { data } = await http.post('/auth/login', payload)
     return data
   }
 }

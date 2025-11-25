@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ordersApi } from '@/services/api'
 import type { Order, OrderStatus } from '@/types'
 import { useNotificationStore } from './notifications'
+import { useAuthStore } from './auth'
+import http from '@/services/api/http'
 
 interface OrdersState {
   list: Order[]
@@ -9,10 +11,10 @@ interface OrdersState {
   loadingList: boolean
   loadingDetail: boolean
   filters: {
-    status: OrderStatus[]
-    search: string
-    fromDate?: string
-    toDate?: string
+    status?: OrderStatus | ''
+    phone?: string
+    from?: string
+    to?: string
   }
   liveNewOrders: Set<string>
   eventSource?: EventSource
@@ -25,10 +27,10 @@ export const useOrdersStore = defineStore('orders', {
     loadingList: false,
     loadingDetail: false,
     filters: {
-      status: [],
-      search: '',
-      fromDate: undefined,
-      toDate: undefined
+      status: '',
+      phone: '',
+      from: undefined,
+      to: undefined
     },
     liveNewOrders: new Set<string>(),
     eventSource: undefined
@@ -37,29 +39,28 @@ export const useOrdersStore = defineStore('orders', {
     async fetch(merchantId: string) {
       this.loadingList = true
       try {
-        const { data } = await ordersApi.list(merchantId, {
-          status: this.filters.status,
-          search: this.filters.search,
-          fromDate: this.filters.fromDate,
-          toDate: this.filters.toDate
+        this.list = await ordersApi.list(merchantId, {
+          status: this.filters.status || undefined,
+          from: this.filters.from,
+          to: this.filters.to,
+          phone: this.filters.phone
         })
-        this.list = data
       } finally {
         this.loadingList = false
       }
     },
-    async fetchById(merchantId: string, id: string) {
+    async fetchById(_merchantId: string, id: string) {
       this.loadingDetail = true
       try {
-        this.selected = await ordersApi.get(merchantId, id)
+        this.selected = await ordersApi.get(id)
       } finally {
         this.loadingDetail = false
       }
     },
-    async updateStatus(merchantId: string, id: string, status: OrderStatus) {
+    async updateStatus(_merchantId: string, id: string, status: OrderStatus) {
       this.loadingDetail = true
       try {
-        const order = await ordersApi.updateStatus(merchantId, id, status)
+        const order = await ordersApi.updateStatus(id, status)
         this.selected = order
         this.list = this.list.map((o) => (o.id === id ? order : o))
         useNotificationStore().push({
@@ -76,10 +77,15 @@ export const useOrdersStore = defineStore('orders', {
       if (this.eventSource) {
         this.eventSource.close()
       }
-      const base = import.meta.env.VITE_API_BASE_URL || window.location.origin
-      const streamUrl = `${base}/api/merchants/${merchantId}/orders/stream`
-      this.eventSource = new EventSource(streamUrl)
-      this.eventSource.onmessage = (event) => {
+      const auth = useAuthStore()
+      const base = (http.defaults.baseURL || window.location.origin).replace(/\/$/, '')
+      const url = new URL(`${base}/merchants/${merchantId}/orders/stream`)
+      if (auth.token) {
+        url.searchParams.set('token', auth.token)
+      }
+
+      this.eventSource = new EventSource(url.toString())
+      const handleEvent = (event: MessageEvent) => {
         try {
           const payload = JSON.parse(event.data) as Order
           this.list = [payload, ...this.list.filter((o) => o.id !== payload.id)]
@@ -87,6 +93,12 @@ export const useOrdersStore = defineStore('orders', {
         } catch (error) {
           console.error('Failed to parse live order', error)
         }
+      }
+      this.eventSource.onmessage = handleEvent
+      this.eventSource.addEventListener('order_created', handleEvent)
+      this.eventSource.addEventListener('order_updated', handleEvent)
+      this.eventSource.onerror = (error) => {
+        console.error('Order stream error', error)
       }
     },
     disconnectLiveUpdates() {

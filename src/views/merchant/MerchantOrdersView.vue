@@ -19,11 +19,7 @@ const statusFilter = ref<OrderStatus | ''>('')
 
 const fetchOrders = async () => {
   if (!auth.merchantId) return
-  if (statusFilter.value) {
-    ordersStore.filters.status = [statusFilter.value]
-  } else {
-    ordersStore.filters.status = []
-  }
+  ordersStore.filters.status = statusFilter.value
   await ordersStore.fetch(auth.merchantId)
 }
 
@@ -56,11 +52,11 @@ const statusVariant = (status: string) => {
       </BaseButton>
     </div>
 
-    <BaseCard>
-      <div class="grid sm:grid-cols-3 gap-4 mb-4">
-        <BaseInput v-model="ordersStore.filters.search" :label="t('orders.filters.search')" icon="search" />
-        <BaseInput v-model="ordersStore.filters.fromDate" :label="t('orders.filters.dateRange')" type="date" />
-        <BaseInput v-model="ordersStore.filters.toDate" :label="' '" type="date" />
+      <BaseCard>
+        <div class="grid sm:grid-cols-3 gap-4 mb-4">
+          <BaseInput v-model="ordersStore.filters.phone" :label="t('orders.filters.search')" icon="search" />
+          <BaseInput v-model="ordersStore.filters.from" :label="t('orders.filters.dateRange')" type="date" />
+          <BaseInput v-model="ordersStore.filters.to" :label="' '" type="date" />
         <BaseSelect
           v-model="statusFilter"
           :label="t('orders.filters.status')"
@@ -99,9 +95,9 @@ const statusVariant = (status: string) => {
             >
               <td class="py-3 font-semibold">#{{ order.id }}</td>
               <td class="py-3">
-                {{ order.customerPhone.slice(0, -4).replace(/[0-9]/g, '*') + order.customerPhone.slice(-4) }}
+                {{ order.session.customerPhone.slice(0, -4).replace(/[0-9]/g, '*') + order.session.customerPhone.slice(-4) }}
               </td>
-              <td class="py-3 font-semibold">${{ order.total.toFixed(2) }}</td>
+              <td class="py-3 font-semibold">${{ Number(order.estimatedTotal).toFixed(2) }}</td>
               <td class="py-3">
                 <BaseBadge :variant="statusVariant(order.status)">
                   {{ t(`statuses.${order.status}`) }}

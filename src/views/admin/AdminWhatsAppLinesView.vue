@@ -38,10 +38,10 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-for="line in whatsappLinesStore.lines" :key="line.id" class="border-t border-border/60">
-              <td class="py-3 font-semibold">{{ line.displayPhoneNumber || line.phone }}</td>
+              <td class="py-3 font-semibold">{{ line.phoneDisplayName || line.phoneNumber || '—' }}</td>
               <td class="py-3">{{ line.merchantName || '—' }}</td>
               <td class="py-3">
-                <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : 'neutral'">
+                <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : line.status === 'PENDING_CONFIG' ? 'warning' : 'neutral'">
                   {{ t(`statuses.${line.status}`) }}
                 </BaseBadge>
               </td>

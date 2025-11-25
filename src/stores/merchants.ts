@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia'
 import { merchantsApi } from '@/services/api'
-import type { Merchant, MerchantStatus, PaginationMeta } from '@/types'
+import type { Merchant } from '@/types'
 import { useNotificationStore } from './notifications'
 
 interface MerchantState {
   merchants: Merchant[]
   selected: Merchant | null
-  meta: PaginationMeta | null
   loading: boolean
 }
 
@@ -14,16 +13,13 @@ export const useMerchantStore = defineStore('merchants', {
   state: (): MerchantState => ({
     merchants: [],
     selected: null,
-    meta: null,
     loading: false
   }),
   actions: {
-    async fetch(filters?: { search?: string; status?: MerchantStatus }) {
+    async fetch(filters?: { search?: string }) {
       this.loading = true
       try {
-        const { data, meta } = await merchantsApi.list(filters)
-        this.merchants = data
-        this.meta = meta ?? null
+        this.merchants = await merchantsApi.list(filters)
       } finally {
         this.loading = false
       }

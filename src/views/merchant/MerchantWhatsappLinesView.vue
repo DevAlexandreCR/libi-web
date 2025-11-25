@@ -20,7 +20,10 @@ onMounted(() => {
 
 const handleComplete = async (payload: EmbeddedSignupPayload) => {
   if (!auth.merchantId) return
-  await whatsappLinesStore.completeEmbeddedSignup(auth.merchantId, payload)
+  await whatsappLinesStore.completeEmbeddedSignup(auth.merchantId, {
+    ...payload,
+    phone_display_name: payload.phone_display_name || (payload as { display_phone_number?: string }).display_phone_number
+  })
 }
 </script>
 
@@ -58,10 +61,10 @@ const handleComplete = async (payload: EmbeddedSignupPayload) => {
             class="border border-border rounded-xl p-3 flex items-center justify-between"
           >
             <div>
-              <p class="font-semibold">{{ line.displayPhoneNumber || line.phone }}</p>
+              <p class="font-semibold">{{ line.phoneDisplayName || line.phoneNumber }}</p>
               <p class="text-xs text-slate-500">WABA: {{ line.wabaId || '—' }}</p>
             </div>
-            <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : 'neutral'">
+            <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : line.status === 'PENDING_CONFIG' ? 'warning' : 'neutral'">
               {{ t(`statuses.${line.status}`) }}
             </BaseBadge>
           </div>

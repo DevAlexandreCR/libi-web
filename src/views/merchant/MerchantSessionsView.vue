@@ -43,15 +43,17 @@ onMounted(() => {
           v-model="sessionsStore.filters.status"
           :label="t('sessions.status')"
           :options="[
-            { label: t('statuses.OPEN'), value: 'OPEN' },
-            { label: t('statuses.IN_PROGRESS'), value: 'IN_PROGRESS' },
-            { label: t('statuses.RESOLVED'), value: 'RESOLVED' },
-            { label: t('statuses.CLOSED'), value: 'CLOSED' }
+            { label: t('statuses.NEW'), value: 'NEW' },
+            { label: t('statuses.COLLECTING_ITEMS'), value: 'COLLECTING_ITEMS' },
+            { label: t('statuses.REVIEWING'), value: 'REVIEWING' },
+            { label: t('statuses.CONFIRMED'), value: 'CONFIRMED' },
+            { label: t('statuses.CANCELLED'), value: 'CANCELLED' },
+            { label: t('statuses.EXPIRED'), value: 'EXPIRED' }
           ]"
           :placeholder="t('common.status')"
         />
-        <BaseInput v-model="sessionsStore.filters.fromDate" :label="t('orders.filters.dateRange')" type="date" />
-        <BaseInput v-model="sessionsStore.filters.toDate" :label="' '" type="date" />
+        <BaseInput v-model="sessionsStore.filters.from" :label="t('orders.filters.dateRange')" type="date" />
+        <BaseInput v-model="sessionsStore.filters.to" :label="' '" type="date" />
       </div>
 
       <div class="overflow-x-auto">
@@ -71,12 +73,20 @@ onMounted(() => {
               <td class="py-3 font-semibold">{{ session.id }}</td>
               <td class="py-3">{{ session.customerPhone }}</td>
               <td class="py-3">
-                <BaseBadge :variant="session.status === 'OPEN' ? 'info' : session.status === 'RESOLVED' ? 'success' : 'neutral'">
+                <BaseBadge
+                  :variant="
+                    session.status === 'CONFIRMED'
+                      ? 'success'
+                      : session.status === 'CANCELLED' || session.status === 'EXPIRED'
+                        ? 'neutral'
+                        : 'info'
+                  "
+                >
                   {{ t(`statuses.${session.status}`) }}
                 </BaseBadge>
               </td>
               <td class="py-3">{{ new Date(session.lastInteractionAt).toLocaleString() }}</td>
-              <td class="py-3">{{ session.orderId || '—' }}</td>
+              <td class="py-3">{{ session.orders?.[0]?.id || '—' }}</td>
               <td class="py-3 text-right">
                 <BaseButton
                   variant="ghost"

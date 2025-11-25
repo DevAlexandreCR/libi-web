@@ -3,10 +3,13 @@ import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
 import { pinia } from '@/stores'
 
-const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
-  withCredentials: false
-})
+const apiOrigin = import.meta.env.VITE_API_ORIGIN ?? window.location.origin
+const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/api'
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ??
+  `${apiOrigin.replace(/\/$/, '')}${apiPrefix.startsWith('/') ? apiPrefix : `/${apiPrefix}`}`
+
+const http = axios.create({ baseURL, withCredentials: false })
 
 http.interceptors.request.use((config) => {
   const auth = useAuthStore(pinia)

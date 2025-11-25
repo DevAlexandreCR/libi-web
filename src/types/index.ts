@@ -1,113 +1,175 @@
 export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN'
+export type WhatsAppLineStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING_CONFIG'
+export type OrderStatus = 'PENDING' | 'IN_PREPARATION' | 'READY' | 'DELIVERED' | 'CANCELLED'
+export type SessionStatus =
+  | 'NEW'
+  | 'COLLECTING_ITEMS'
+  | 'REVIEWING'
+  | 'CONFIRMED'
+  | 'CANCELLED'
+  | 'EXPIRED'
+export type DeliveryType = 'delivery' | 'pickup'
+export type MessageRole = 'user' | 'assistant' | 'system'
 
 export interface User {
   id: string
-  name: string
   email: string
   role: UserRole
-  merchantId?: string
+  merchantId: string | null
 }
-
-export type MerchantStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface Merchant {
   id: string
   name: string
   slug: string
-  address?: string
-  status: MerchantStatus
+  description?: string | null
+  address?: string | null
+  phone?: string | null
+  timezone?: string | null
   createdAt: string
+  updatedAt: string
 }
 
 export interface WhatsAppLine {
   id: string
   merchantId: string
+  wabaId?: string | null
+  phoneNumberId?: string | null
+  phoneNumber?: string | null
+  phoneDisplayName?: string | null
+  metaBusinessId?: string | null
+  metaAccessToken?: string | null
+  status: WhatsAppLineStatus
+  createdAt: string
+  updatedAt: string
   merchantName?: string
-  phone: string
-  displayPhoneNumber?: string
-  status: 'ACTIVE' | 'INACTIVE'
-  createdAt: string
-  phoneNumberId?: string
-  wabaId?: string
-  accessToken?: string
 }
 
-export type OrderStatus = 'PENDING' | 'IN_PREPARATION' | 'READY' | 'DELIVERED' | 'CANCELLED'
-
-export interface OrderItemOption {
-  name: string
-  value: string
-}
-
-export interface OrderItem {
+export interface MenuOption {
   id: string
   name: string
-  quantity: number
-  unitPrice: number
-  options?: OrderItemOption[]
+  extraPrice: string
+  position: number
 }
 
-export interface OrderTimeline {
-  status: OrderStatus
-  timestamp: string
-}
-
-export interface Order {
+export interface MenuOptionGroup {
   id: string
-  merchantId: string
-  customerPhone: string
-  status: OrderStatus
-  total: number
-  createdAt: string
-  deliveryType?: 'DELIVERY' | 'PICKUP'
-  address?: string
-  paymentMethod?: string
-  notes?: string
-  items: OrderItem[]
-  timeline?: OrderTimeline[]
-}
-
-export type SessionStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
-
-export interface SessionMessage {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  timestamp: string
-}
-
-export interface Session {
-  id: string
-  merchantId: string
-  customerPhone: string
-  status: SessionStatus
-  orderId?: string
-  lastInteractionAt: string
-  messages?: SessionMessage[]
+  name: string
+  type: 'SINGLE' | 'MULTIPLE'
+  isRequired: boolean
+  min: number
+  max: number
+  position: number
+  options: MenuOption[]
 }
 
 export interface MenuItem {
   id: string
   name: string
-  description?: string
-  price: number
+  description?: string | null
+  basePrice: string
   isAvailable: boolean
-  imageUrl?: string
+  position: number
+  imageUrl?: string | null
+  optionGroups: MenuOptionGroup[]
 }
 
 export interface MenuCategory {
   id: string
   name: string
+  description?: string | null
+  position: number
   items: MenuItem[]
 }
 
-export interface MenuImportPreview {
+export interface Menu {
+  id: string
+  merchantId: string
+  name: string
+  isActive: boolean
   categories: MenuCategory[]
 }
 
-export interface PaginationMeta {
-  page: number
-  pageSize: number
-  total: number
+export interface MenuImportResult {
+  menuJson: unknown
+  menu: Menu
+}
+
+export interface Upload {
+  id: string
+  merchantId: string
+  fileName: string
+  filePath: string
+  mimeType: string
+  size: number
+  createdAt: string
+}
+
+export interface OrderItemOption {
+  id: string
+  menuItemOptionId?: string | null
+  name: string
+  extraPrice: string
+}
+
+export interface OrderItem {
+  id: string
+  menuItemId?: string | null
+  name: string
+  quantity: number
+  unitPrice: string
+  subtotal: string
+  options: OrderItemOption[]
+}
+
+export interface SessionMessage {
+  id: string
+  role: MessageRole
+  content: string
+  createdAt: string
+}
+
+export interface OrderSessionSummary {
+  id: string
+  customerPhone: string
+  status: SessionStatus
+  state: Record<string, unknown> | null
+  messages?: SessionMessage[]
+}
+
+export interface Order {
+  id: string
+  merchantId: string
+  sessionId: string
+  status: OrderStatus
+  deliveryType: DeliveryType
+  address?: string | null
+  paymentMethod?: string | null
+  notes?: string | null
+  estimatedTotal: string
+  items: OrderItem[]
+  session: OrderSessionSummary
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SessionOrderSummary {
+  id: string
+  status: OrderStatus
+  estimatedTotal: string
+  createdAt: string
+}
+
+export interface Session {
+  id: string
+  merchantId: string
+  whatsappLineId: string
+  customerPhone: string
+  status: SessionStatus
+  state: Record<string, unknown> | null
+  lastInteractionAt: string
+  messages?: SessionMessage[]
+  orders?: SessionOrderSummary[]
 }
 
 export interface StatsSummary {
@@ -115,5 +177,5 @@ export interface StatsSummary {
   orders?: number
   whatsappLines?: number
   dailyOrders?: { date: string; count: number }[]
-  ordersByStatus?: Record<string, number>
+  ordersByStatus?: Partial<Record<OrderStatus, number>>
 }

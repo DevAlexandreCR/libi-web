@@ -31,7 +31,15 @@ onMounted(async () => {
         </h1>
         <p class="text-slate-600">{{ session.customerPhone }}</p>
       </div>
-      <BaseBadge :variant="session.status === 'RESOLVED' ? 'success' : 'info'">
+      <BaseBadge
+        :variant="
+          session.status === 'CONFIRMED'
+            ? 'success'
+            : session.status === 'CANCELLED' || session.status === 'EXPIRED'
+              ? 'neutral'
+              : 'info'
+        "
+      >
         {{ t(`statuses.${session.status}`) }}
       </BaseBadge>
     </div>
@@ -41,7 +49,7 @@ onMounted(async () => {
         <div class="space-y-3 max-h-[480px] overflow-y-auto pr-2">
           <div
             v-for="message in session.messages || []"
-            :key="message.timestamp + message.role"
+            :key="message.createdAt + message.role"
             class="flex"
             :class="message.role === 'assistant' ? 'justify-end' : 'justify-start'"
           >
@@ -56,7 +64,7 @@ onMounted(async () => {
               "
             >
               <p class="text-sm leading-relaxed">{{ message.content }}</p>
-              <span class="text-[10px] opacity-70">{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
+              <span class="text-[10px] opacity-70">{{ new Date(message.createdAt).toLocaleTimeString() }}</span>
             </div>
           </div>
         </div>
@@ -74,7 +82,7 @@ onMounted(async () => {
           </div>
           <div class="flex items-center justify-between">
             <span class="text-slate-600">{{ t('sessions.linkedOrder') }}</span>
-            <span class="font-semibold">{{ session.orderId || '—' }}</span>
+            <span class="font-semibold">{{ session.orders?.[0]?.id || '—' }}</span>
           </div>
         </div>
       </BaseCard>

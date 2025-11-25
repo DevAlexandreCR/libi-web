@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import BaseBadge from '@/components/base/BaseBadge.vue'
 import { useMerchantStore } from '@/stores/merchants'
 
 const { t } = useI18n()
@@ -23,8 +22,6 @@ const filteredMerchants = computed(() =>
     merchant.slug.toLowerCase().includes(search.value.toLowerCase())
   )
 )
-
-const statusVariant = (status: string) => (status === 'ACTIVE' ? 'success' : 'neutral')
 </script>
 
 <template>
@@ -48,8 +45,9 @@ const statusVariant = (status: string) => (status === 'ACTIVE' ? 'success' : 'ne
           <thead>
             <tr class="text-left text-slate-500">
               <th class="py-2">#</th>
-              <th class="py-2">{{ t('common.status') }}</th>
               <th class="py-2">{{ t('orders.address') }}</th>
+              <th class="py-2">{{ t('common.phone') }}</th>
+              <th class="py-2">Timezone</th>
               <th class="py-2">{{ t('common.createdAt') }}</th>
               <th class="py-2 text-right">{{ t('common.actions') }}</th>
             </tr>
@@ -60,10 +58,9 @@ const statusVariant = (status: string) => (status === 'ACTIVE' ? 'success' : 'ne
                 <div class="font-semibold">{{ merchant.name }}</div>
                 <div class="text-xs text-slate-500">{{ merchant.slug }}</div>
               </td>
-              <td class="py-3">
-                <BaseBadge :variant="statusVariant(merchant.status)">{{ t(`statuses.${merchant.status}`) }}</BaseBadge>
-              </td>
               <td class="py-3">{{ merchant.address || '—' }}</td>
+              <td class="py-3">{{ merchant.phone || '—' }}</td>
+              <td class="py-3">{{ merchant.timezone || '—' }}</td>
               <td class="py-3">{{ new Date(merchant.createdAt).toLocaleDateString() }}</td>
               <td class="py-3 text-right space-x-2">
                 <BaseButton variant="ghost" size="sm" icon="eye" @click="router.push({ name: 'admin-merchants-edit', params: { id: merchant.id } })">

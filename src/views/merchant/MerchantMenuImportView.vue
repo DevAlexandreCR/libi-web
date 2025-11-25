@@ -26,11 +26,6 @@ const onDrop = (event: DragEvent) => {
 
 const openFileDialog = () => fileInput.value?.click()
 
-const accept = async () => {
-  if (!auth.merchantId) return
-  await menuStore.acceptImport(auth.merchantId)
-}
-
 const reloadMenu = async () => {
   if (!auth.merchantId) return
   await menuStore.fetch(auth.merchantId)
@@ -80,14 +75,13 @@ const reloadMenu = async () => {
             <ul class="space-y-2 text-sm text-slate-700">
               <li v-for="item in category.items" :key="item.id" class="flex items-center justify-between">
                 <span>{{ item.name }}</span>
-                <span class="font-semibold">${{ item.price.toFixed(2) }}</span>
+                <span class="font-semibold">${{ Number(item.basePrice).toFixed(2) }}</span>
               </li>
             </ul>
           </div>
         </div>
         <div class="flex gap-3 mt-4">
-          <BaseButton :loading="menuStore.processing" @click="accept">{{ t('menu.accept') }}</BaseButton>
-          <BaseButton variant="ghost" @click="reloadMenu">{{ t('menu.reload') }}</BaseButton>
+          <BaseButton :loading="menuStore.processing" @click="reloadMenu">{{ t('menu.reload') }}</BaseButton>
         </div>
       </BaseCard>
     </div>

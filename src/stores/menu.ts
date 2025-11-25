@@ -1,19 +1,21 @@
 import { defineStore } from 'pinia'
 import { menuApi } from '@/services/api'
-import type { MenuCategory, MenuImportPreview } from '@/types'
+import type { Menu, MenuItem } from '@/types'
 import { useNotificationStore } from './notifications'
 
 interface MenuState {
-  categories: MenuCategory[]
-  preview: MenuImportPreview | null
+  menu: Menu | null
+  preview: Menu | null
+  previewJson: unknown | null
   loading: boolean
   processing: boolean
 }
 
 export const useMenuStore = defineStore('menu', {
   state: (): MenuState => ({
-    categories: [],
+    menu: null,
     preview: null,
+    previewJson: null,
     loading: false,
     processing: false
   }),
@@ -21,35 +23,44 @@ export const useMenuStore = defineStore('menu', {
     async fetch(merchantId: string) {
       this.loading = true
       try {
-        this.categories = await menuApi.getMenu(merchantId)
+        this.menu = await menuApi.getMenu(merchantId)
       } finally {
         this.loading = false
       }
     },
-    async toggleAvailability(merchantId: string, itemId: string, isAvailable: boolean) {
-      const existing = this.categories.flatMap((c) => c.items).find((i) => i.id === itemId)
-      if (existing) existing.isAvailable = isAvailable
-      const updated = await menuApi.toggleAvailability(merchantId, itemId, isAvailable)
-      this.categories = this.categories.map((category) => ({
-        ...category,
-        items: category.items.map((item) => (item.id === itemId ? updated : item))
-      }))
+    async toggleAvailability(itemId: string, isAvailable: boolean) {
+      if (this.menu) {
+        this.menu = {
+          ...this.menu,
+          categories: this.menu.categories.map((category) => ({
+            ...category,
+            items: category.items.map((item) =>
+              item.id === itemId ? { ...item, isAvailable } : item
+            )
+          }))
+        }
+      }
+      const updated = await menuApi.toggleAvailability(itemId, isAvailable)
+      const updateItem = (item: MenuItem) => (item.id === itemId ? updated : item)
+      if (this.menu) {
+        this.menu = {
+          ...this.menu,
+          categories: this.menu.categories.map((category) => ({
+            ...category,
+            items: category.items.map(updateItem)
+          }))
+        }
+      }
     },
     async uploadAndProcess(merchantId: string, files: File[]) {
       this.processing = true
       try {
-        const { uploadIds } = await menuApi.uploadImages(merchantId, files)
-        this.preview = await menuApi.processImport(merchantId, uploadIds)
-      } finally {
-        this.processing = false
-      }
-    },
-    async acceptImport(merchantId: string) {
-      this.processing = true
-      try {
-        await menuApi.acceptImported(merchantId)
-        this.preview = null
-        await this.fetch(merchantId)
+        const uploads = await menuApi.uploadImages(merchantId, files)
+        const uploadIds = uploads.map((u) => u.id)
+        const result = await menuApi.processImport(merchantId, uploadIds)
+        this.preview = result.menu
+        this.previewJson = result.menuJson
+        this.menu = result.menu
         useNotificationStore().push({
           id: crypto.randomUUID(),
           type: 'success',

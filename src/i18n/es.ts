@@ -25,6 +25,7 @@ const es = {
     apply: 'Aplicar',
     reset: 'Restablecer',
     total: 'Total',
+    description: 'Descripción',
     language: 'Idioma',
     phone: 'Teléfono',
     createdAt: 'Creado',
@@ -182,15 +183,17 @@ const es = {
   statuses: {
     ACTIVE: 'Activo',
     INACTIVE: 'Inactivo',
+    PENDING_CONFIG: 'Pendiente de configuración',
     PENDING: 'Pendiente',
     IN_PREPARATION: 'En preparación',
     READY: 'Listo',
     DELIVERED: 'Entregado',
     CANCELLED: 'Cancelado',
-    OPEN: 'Abierta',
-    IN_PROGRESS: 'En progreso',
-    RESOLVED: 'Resuelta',
-    CLOSED: 'Cerrada'
+    NEW: 'Nueva',
+    COLLECTING_ITEMS: 'Recolectando ítems',
+    REVIEWING: 'En revisión',
+    CONFIRMED: 'Confirmada',
+    EXPIRED: 'Expirada'
   }
 }
 

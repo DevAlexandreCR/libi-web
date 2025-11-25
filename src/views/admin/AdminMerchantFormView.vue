@@ -4,10 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import BaseSelect from '@/components/base/BaseSelect.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { useMerchantStore } from '@/stores/merchants'
-import type { MerchantStatus } from '@/types'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -18,14 +16,18 @@ const form = reactive<{
   id?: string
   name?: string
   slug?: string
+  description?: string
   address?: string
-  status: MerchantStatus
+  phone?: string
+  timezone?: string
 }>({
   id: '',
   name: '',
   slug: '',
+  description: '',
   address: '',
-  status: 'ACTIVE'
+  phone: '',
+  timezone: ''
 })
 
 onMounted(async () => {
@@ -52,16 +54,10 @@ const handleSubmit = async () => {
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <BaseInput v-model="form.name" :label="t('common.name')" placeholder="Mi restaurante" />
         <BaseInput v-model="form.slug" label="Slug" placeholder="mi-restaurante" />
+        <BaseInput v-model="form.description" :label="t('common.description') || 'Descripción'" placeholder="Descripción" />
         <BaseInput v-model="form.address" :label="t('orders.address')" placeholder="Calle 123" />
-        <BaseSelect
-          v-model="form.status"
-          :label="t('common.status')"
-          :options="[
-            { label: t('statuses.ACTIVE'), value: 'ACTIVE' },
-            { label: t('statuses.INACTIVE'), value: 'INACTIVE' }
-          ]"
-          :placeholder="t('common.status')"
-        />
+        <BaseInput v-model="form.phone" :label="t('common.phone')" placeholder="+1 555 123456" />
+        <BaseInput v-model="form.timezone" label="Timezone" placeholder="America/Mexico_City" />
         <div class="flex gap-3">
           <BaseButton type="submit">{{ t('common.save') }}</BaseButton>
           <BaseButton variant="ghost" @click="router.back()">{{ t('common.cancel') }}</BaseButton>

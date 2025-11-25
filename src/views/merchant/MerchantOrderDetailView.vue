@@ -37,6 +37,17 @@ const updateStatus = async (status: OrderStatus) => {
   if (!auth.merchantId || !order.value) return
   await ordersStore.updateStatus(auth.merchantId, order.value.id, status)
 }
+
+const lastInteraction = computed(() => {
+  const current = order.value
+  if (!current) return ''
+  const messages = current.session.messages ?? []
+  if (messages.length) {
+    const lastMessage = messages[messages.length - 1]
+    return lastMessage?.createdAt ?? current.updatedAt
+  }
+  return current.updatedAt
+})
 </script>
 
 <template>
@@ -68,12 +79,12 @@ const updateStatus = async (status: OrderStatus) => {
             <div>
               <p class="font-semibold">{{ item.name }}</p>
               <p class="text-xs text-slate-500" v-if="item.options?.length">
-                {{ item.options.map((o) => `${o.name}: ${o.value}`).join(', ') }}
+                {{ item.options.map((o) => `${o.name} (+$${Number(o.extraPrice).toFixed(2)})`).join(', ') }}
               </p>
             </div>
             <div class="text-right">
               <p class="font-semibold">x{{ item.quantity }}</p>
-              <p class="text-sm text-slate-600">${{ (item.quantity * item.unitPrice).toFixed(2) }}</p>
+              <p class="text-sm text-slate-600">${{ (item.quantity * Number(item.unitPrice)).toFixed(2) }}</p>
             </div>
           </div>
         </div>
@@ -83,11 +94,11 @@ const updateStatus = async (status: OrderStatus) => {
         <div class="space-y-3 text-sm">
           <div class="flex items-center justify-between">
             <span class="text-slate-600">{{ t('orders.customer') }}</span>
-            <span class="font-semibold">{{ order.customerPhone }}</span>
+            <span class="font-semibold">{{ order.session.customerPhone }}</span>
           </div>
           <div class="flex items-center justify-between" v-if="order.deliveryType">
             <span class="text-slate-600">{{ t('orders.deliveryType') }}</span>
-            <span class="font-semibold">{{ order.deliveryType }}</span>
+            <span class="font-semibold">{{ order.deliveryType === 'delivery' ? 'Delivery' : 'Pickup' }}</span>
           </div>
           <div v-if="order.address" class="flex items-start justify-between">
             <span class="text-slate-600">{{ t('orders.address') }}</span>
@@ -99,7 +110,7 @@ const updateStatus = async (status: OrderStatus) => {
           </div>
           <div class="flex items-center justify-between">
             <span class="text-slate-600">{{ t('orders.total') }}</span>
-            <span class="text-lg font-bold">${{ order.total.toFixed(2) }}</span>
+            <span class="text-lg font-bold">${{ Number(order.estimatedTotal).toFixed(2) }}</span>
           </div>
         </div>
       </BaseCard>
@@ -113,16 +124,15 @@ const updateStatus = async (status: OrderStatus) => {
           </BaseBadge>
           <span class="text-sm text-slate-600">{{ new Date(order.createdAt).toLocaleString() }}</span>
         </div>
-        <div v-if="order.timeline?.length" class="space-y-2">
-          <div v-for="item in order.timeline" :key="item.timestamp" class="flex items-center gap-3">
-            <div class="h-2 w-2 rounded-full bg-primary-500"></div>
-            <div class="text-sm">
-              <p class="font-semibold">{{ t(`statuses.${item.status}`) }}</p>
-              <p class="text-slate-500">{{ new Date(item.timestamp).toLocaleString() }}</p>
-            </div>
-          </div>
+        <div class="flex items-center gap-3">
+          <BaseBadge variant="neutral">
+            {{ t(`statuses.${order.session.status}`) }}
+          </BaseBadge>
+          <span class="text-sm text-slate-600">
+            {{ t('sessions.lastInteraction') }}:
+            {{ new Date(lastInteraction).toLocaleString() }}
+          </span>
         </div>
-        <p v-else class="text-sm text-slate-500">{{ t('common.loading') }}</p>
       </div>
     </BaseCard>
   </div>

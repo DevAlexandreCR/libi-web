@@ -7,7 +7,7 @@
   "forwardPorts": [5173],
   "postCreateCommand": "npm install",
   "remoteEnv": {
-    "VITE_API_BASE_URL": "http://localhost:3000",
+    "VITE_API_BASE_URL": "http://localhost:3001/api",
     "VITE_DEFAULT_LOCALE": "es"
   }
 }

@@ -4,6 +4,7 @@ import type { User, UserRole } from '@/types'
 import { useNotificationStore } from './notifications'
 
 const TOKEN_KEY = 'libi_token'
+const USER_KEY = 'libi_user'
 
 interface AuthState {
   user: User | null
@@ -32,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = result.token
         this.user = result.user
         localStorage.setItem(TOKEN_KEY, result.token)
+        localStorage.setItem(USER_KEY, JSON.stringify(result.user))
         useNotificationStore().push({
           id: crypto.randomUUID(),
           type: 'success',
@@ -44,13 +46,20 @@ export const useAuthStore = defineStore('auth', {
     },
     async restoreSession() {
       const savedToken = localStorage.getItem(TOKEN_KEY)
-      if (savedToken) {
+      const savedUser = localStorage.getItem(USER_KEY)
+      if (savedToken && savedUser) {
         this.token = savedToken
         try {
-          this.user = await authApi.currentUser()
-        } catch (error) {
-          this.logout()
+          this.user = JSON.parse(savedUser)
+        } catch {
+          this.user = null
+          this.token = ''
         }
+      } else {
+        this.user = null
+        this.token = ''
+        localStorage.removeItem(TOKEN_KEY)
+        localStorage.removeItem(USER_KEY)
       }
       this.initialized = true
     },
@@ -58,6 +67,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.token = ''
       localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem(USER_KEY)
       useNotificationStore().push({
         id: crypto.randomUUID(),
         type: 'info',

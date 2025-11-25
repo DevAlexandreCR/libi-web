@@ -25,6 +25,7 @@ const en = {
     apply: 'Apply',
     reset: 'Reset',
     total: 'Total',
+    description: 'Description',
     language: 'Language',
     phone: 'Phone',
     createdAt: 'Created at',
@@ -182,15 +183,17 @@ const en = {
   statuses: {
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',
+    PENDING_CONFIG: 'Pending config',
     PENDING: 'Pending',
     IN_PREPARATION: 'In preparation',
     READY: 'Ready',
     DELIVERED: 'Delivered',
     CANCELLED: 'Cancelled',
-    OPEN: 'Open',
-    IN_PROGRESS: 'In progress',
-    RESOLVED: 'Resolved',
-    CLOSED: 'Closed'
+    NEW: 'New',
+    COLLECTING_ITEMS: 'Collecting items',
+    REVIEWING: 'Reviewing',
+    CONFIRMED: 'Confirmed',
+    EXPIRED: 'Expired'
   }
 }
 

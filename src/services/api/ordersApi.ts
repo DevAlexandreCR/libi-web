@@ -1,32 +1,24 @@
-import type { Order, OrderStatus, PaginationMeta } from '@/types'
+import type { Order, OrderStatus } from '@/types'
 import http from './http'
 
 export interface OrderFilters {
-  status?: OrderStatus[] | string[]
-  fromDate?: string
-  toDate?: string
-  search?: string
-  page?: number
-  pageSize?: number
-}
-
-export interface OrderListResponse {
-  data: Order[]
-  meta?: PaginationMeta
+  status?: OrderStatus
+  from?: string
+  to?: string
+  phone?: string
 }
 
 export const ordersApi = {
-  async list(merchantId: string, filters: OrderFilters = {}): Promise<OrderListResponse> {
-    const params = { ...filters, status: filters.status?.join(',') }
-    const { data } = await http.get(`/api/merchants/${merchantId}/orders`, { params })
+  async list(merchantId: string, filters: OrderFilters = {}): Promise<Order[]> {
+    const { data } = await http.get(`/merchants/${merchantId}/orders`, { params: filters })
     return data
   },
-  async get(merchantId: string, orderId: string): Promise<Order> {
-    const { data } = await http.get(`/api/merchants/${merchantId}/orders/${orderId}`)
+  async get(orderId: string): Promise<Order> {
+    const { data } = await http.get(`/orders/${orderId}`)
     return data
   },
-  async updateStatus(merchantId: string, orderId: string, status: OrderStatus): Promise<Order> {
-    const { data } = await http.post(`/api/merchants/${merchantId}/orders/${orderId}/status`, {
+  async updateStatus(orderId: string, status: OrderStatus): Promise<Order> {
+    const { data } = await http.patch(`/orders/${orderId}/status`, {
       status
     })
     return data

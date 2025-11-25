@@ -23,13 +23,13 @@ onMounted(async () => {
   <div class="space-y-6">
     <div>
       <h1 class="text-2xl font-bold">{{ t('admin.whatsappLineDetail') }}</h1>
-      <p class="text-slate-600">{{ line?.displayPhoneNumber || line?.phone }}</p>
+      <p class="text-slate-600">{{ line?.phoneDisplayName || line?.phoneNumber }}</p>
     </div>
     <BaseCard v-if="line">
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
           <p class="text-xs text-slate-500 mb-1">{{ t('common.phone') }}</p>
-          <p class="font-semibold">{{ line.displayPhoneNumber || line.phone }}</p>
+          <p class="font-semibold">{{ line.phoneDisplayName || line.phoneNumber }}</p>
         </div>
         <div>
           <p class="text-xs text-slate-500 mb-1">{{ t('navigation.merchants') }}</p>
@@ -37,7 +37,7 @@ onMounted(async () => {
         </div>
         <div>
           <p class="text-xs text-slate-500 mb-1">{{ t('common.status') }}</p>
-          <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : 'neutral'">
+          <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : line.status === 'PENDING_CONFIG' ? 'warning' : 'neutral'">
             {{ t(`statuses.${line.status}`) }}
           </BaseBadge>
         </div>
@@ -48,7 +48,7 @@ onMounted(async () => {
         </div>
         <div class="sm:col-span-2">
           <p class="text-xs text-slate-500 mb-1">Access token length</p>
-          <p class="text-sm text-slate-700">{{ line.accessToken ? line.accessToken.length : 0 }} chars (masked)</p>
+          <p class="text-sm text-slate-700">{{ line.metaAccessToken ? line.metaAccessToken.length : 0 }} chars (masked)</p>
         </div>
       </div>
     </BaseCard>

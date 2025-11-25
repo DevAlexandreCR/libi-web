@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
@@ -17,9 +17,10 @@ onMounted(() => {
   }
 })
 
+const categories = computed(() => menuStore.menu?.categories ?? [])
+
 const toggle = async (itemId: string, value: boolean) => {
-  if (!auth.merchantId) return
-  await menuStore.toggleAvailability(auth.merchantId, itemId, value)
+  await menuStore.toggleAvailability(itemId, value)
 }
 </script>
 
@@ -33,13 +34,13 @@ const toggle = async (itemId: string, value: boolean) => {
     </div>
 
     <div class="grid md:grid-cols-2 gap-4">
-      <BaseCard v-for="category in menuStore.categories" :key="category.id" :title="category.name">
+      <BaseCard v-for="category in categories" :key="category.id" :title="category.name">
         <div class="space-y-4">
           <div v-for="item in category.items" :key="item.id" class="flex items-start justify-between">
             <div>
               <p class="font-semibold">{{ item.name }}</p>
               <p class="text-xs text-slate-500">{{ item.description }}</p>
-              <p class="text-sm font-semibold mt-1">${{ item.price.toFixed(2) }}</p>
+              <p class="text-sm font-semibold mt-1">${{ Number(item.basePrice).toFixed(2) }}</p>
             </div>
             <div class="flex flex-col items-end gap-2">
               <BaseBadge :variant="item.isAvailable ? 'success' : 'neutral'">
@@ -51,7 +52,7 @@ const toggle = async (itemId: string, value: boolean) => {
         </div>
       </BaseCard>
     </div>
-    <div v-if="!menuStore.categories.length" class="text-center text-slate-500 py-6">
+    <div v-if="!categories.length" class="text-center text-slate-500 py-6">
       {{ t('common.loading') }}
     </div>
   </div>

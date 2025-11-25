@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { whatsappLinesApi, type EmbeddedSignupPayload } from '@/services/api/whatsappLinesApi'
+import { merchantsApi } from '@/services/api'
 import type { WhatsAppLine } from '@/types'
 import { useNotificationStore } from './notifications'
 
@@ -19,7 +20,14 @@ export const useWhatsappLinesStore = defineStore('whatsappLines', {
     async fetchAll() {
       this.loading = true
       try {
-        this.lines = await whatsappLinesApi.listAll()
+        const merchants = await merchantsApi.list()
+        const all = await Promise.all(
+          merchants.map(async (merchant) => {
+            const lines = await whatsappLinesApi.listByMerchant(merchant.id)
+            return lines.map((line) => ({ ...line, merchantName: merchant.name }))
+          })
+        )
+        this.lines = all.flat()
       } finally {
         this.loading = false
       }
@@ -36,7 +44,10 @@ export const useWhatsappLinesStore = defineStore('whatsappLines', {
       this.connecting = true
       try {
         const line = await whatsappLinesApi.completeEmbeddedSignup(merchantId, payload)
-        this.lines = [line, ...this.lines.filter((l) => l.id !== line.id)]
+        const existingName = this.lines.find((l) => l.merchantId === merchantId)?.merchantName
+        const merchantName = existingName ?? (await merchantsApi.get(merchantId)).name
+        const enriched = { ...line, merchantName }
+        this.lines = [enriched, ...this.lines.filter((l) => l.id !== line.id)]
         useNotificationStore().push({
           id: crypto.randomUUID(),
           type: 'success',
