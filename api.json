@@ -1,0 +1,356 @@
+{
+  "meta": {
+    "baseUrl": "{{API_ORIGIN}}{{API_PREFIX:/api}}",
+    "contentType": "application/json; charset=utf-8",
+    "authHeader": "Authorization: Bearer <JWT>",
+    "jwtExpiry": "config.JWT_EXPIRES_IN (default 7d)"
+  },
+  "authentication": {
+    "login": {
+      "method": "POST",
+      "path": "/auth/login",
+      "body": { "email": "string", "password": "string (>=6)" },
+      "response": {
+        "token": "JWT",
+        "user": { "id": "string", "email": "string", "role": "UserRole", "merchantId": "string|null" }
+      }
+    }
+  },
+  "errorFormat": { "statusCodes": [400,401,403,404,409,500], "body": { "message": "string", "details": "unknown|optional" } },
+  "enums": {
+    "UserRole": ["SUPER_ADMIN", "MERCHANT_ADMIN"],
+    "WhatsAppLineStatus": ["ACTIVE", "INACTIVE", "PENDING_CONFIG"],
+    "OrderStatus": ["PENDING","IN_PREPARATION","READY","DELIVERED","CANCELLED"],
+    "SessionStatus": ["NEW","COLLECTING_ITEMS","REVIEWING","CONFIRMED","CANCELLED","EXPIRED"],
+    "DeliveryType": ["delivery","pickup"],
+    "MessageRole": ["user","assistant","system"]
+  },
+  "schemas": {
+    "Merchant": { "id": "string", "name": "string", "slug": "string", "description": "string?", "address": "string?", "phone": "string?", "timezone": "string?", "createdAt": "ISO", "updatedAt": "ISO" },
+    "WhatsAppLine": { "id": "string", "merchantId": "string", "wabaId": "string?", "phoneNumberId": "string?", "phoneNumber": "string?", "phoneDisplayName": "string?", "metaBusinessId": "string?", "metaAccessToken": "string?", "status": "WhatsAppLineStatus", "createdAt": "ISO", "updatedAt": "ISO" },
+    "Menu": {
+      "id": "string",
+      "merchantId": "string",
+      "name": "string",
+      "isActive": "boolean",
+      "categories": [
+        {
+          "id": "string",
+          "name": "string",
+          "description": "string?",
+          "position": "number",
+          "items": [
+            {
+              "id": "string",
+              "name": "string",
+              "description": "string?",
+              "basePrice": "Decimal string",
+              "isAvailable": "boolean",
+              "position": "number",
+              "imageUrl": "string?",
+              "optionGroups": [
+                {
+                  "id": "string",
+                  "name": "string",
+                  "type": "SINGLE|MULTIPLE",
+                  "isRequired": "boolean",
+                  "min": "number",
+                  "max": "number",
+                  "position": "number",
+                  "options": [
+                    { "id": "string", "name": "string", "extraPrice": "Decimal string", "position": "number" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "Order": {
+      "id": "string",
+      "merchantId": "string",
+      "sessionId": "string",
+      "status": "OrderStatus",
+      "deliveryType": "DeliveryType",
+      "address": "string?",
+      "paymentMethod": "string?",
+      "notes": "string?",
+      "estimatedTotal": "Decimal string",
+      "items": [
+        {
+          "id": "string",
+          "menuItemId": "string?",
+          "name": "string",
+          "quantity": "number",
+          "unitPrice": "Decimal string",
+          "subtotal": "Decimal string",
+          "options": [
+            { "id": "string", "menuItemOptionId": "string?", "name": "string", "extraPrice": "Decimal string" }
+          ]
+        }
+      ],
+      "session": {
+        "id": "string",
+        "customerPhone": "string",
+        "status": "SessionStatus",
+        "state": "JSON",
+        "messages": "included on detail only"
+      },
+      "createdAt": "ISO",
+      "updatedAt": "ISO"
+    },
+    "Session": {
+      "id": "string",
+      "merchantId": "string",
+      "whatsappLineId": "string",
+      "customerPhone": "string",
+      "status": "SessionStatus",
+      "state": "JSON",
+      "lastInteractionAt": "ISO",
+      "messages": [{ "id": "string", "role": "MessageRole", "content": "string", "createdAt": "ISO" }],
+      "orders": ["Order summary objects"]
+    },
+    "Upload": { "id": "string", "merchantId": "string", "fileName": "string", "filePath": "string", "mimeType": "string", "size": "number(bytes)", "createdAt": "ISO" }
+  },
+  "resources": [
+    {
+      "name": "Merchants",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/merchants",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN"],
+          "query": { "search": "string? (partial match on name/slug)" },
+          "response": "Array<Merchant>"
+        },
+        {
+          "method": "POST",
+          "path": "/merchants",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN"],
+          "body": { "name": "string", "slug": "string", "description": "string?", "address": "string?", "phone": "string?", "timezone": "string?" },
+          "response": "Merchant (201)"
+        },
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN"],
+          "response": "Merchant"
+        },
+        {
+          "method": "PUT",
+          "path": "/merchants/:merchantId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN"],
+          "body": "Partial<Merchant fields>",
+          "response": "Merchant"
+        },
+        {
+          "method": "DELETE",
+          "path": "/merchants/:merchantId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN"],
+          "response": "Merchant (deleted record)"
+        }
+      ]
+    },
+    {
+      "name": "WhatsApp Lines",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId/whatsapp-lines",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant via requireMerchantAccess)"],
+          "response": "Array<WhatsAppLine>"
+        },
+        {
+          "method": "POST",
+          "path": "/merchants/:merchantId/whatsapp-lines",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "body": {
+            "access_token": "string?",
+            "phone_number_id": "string?",
+            "waba_id": "string?",
+            "business_id": "string?",
+            "phone_number": "string?",
+            "phone_display_name": "string?"
+          },
+          "response": "WhatsAppLine (status defaults to PENDING_CONFIG)"
+        },
+        {
+          "method": "POST",
+          "path": "/merchants/:merchantId/whatsapp-lines/embedded-signup/complete",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "body": {
+            "access_token": "string",
+            "phone_number_id": "string",
+            "waba_id": "string",
+            "business_id": "string?",
+            "phone_number": "string?",
+            "phone_display_name": "string?"
+          },
+          "response": "WhatsAppLine (status ACTIVE)"
+        },
+        {
+          "method": "PUT",
+          "path": "/whatsapp-lines/:lineId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (owns line)"],
+          "body": { "status": "WhatsAppLineStatus?", "phoneDisplayName": "string?" },
+          "response": "WhatsAppLine"
+        }
+      ]
+    },
+    {
+      "name": "Menus",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId/menus/current",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "response": "Menu (with nested categories/items/optionGroups)"
+        },
+        {
+          "method": "PATCH",
+          "path": "/menu-items/:menuItemId/availability",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN"], 
+          "note": "Route does not re-check merchantId; caller must ensure item ownership.",
+          "body": { "isAvailable": "boolean" },
+          "response": "MenuItem"
+        }
+      ]
+    },
+    {
+      "name": "Menu Import",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/merchants/:merchantId/menu-import/uploads",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "contentType": "multipart/form-data",
+          "body": "files[] (field name 'files', up to 5 images)",
+          "response": "Array<Upload>"
+        },
+        {
+          "method": "POST",
+          "path": "/merchants/:merchantId/menu-import/process",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "body": { "uploadIds": ["string", "..."] },
+          "response": { "menuJson": "AI extracted JSON", "menu": "Menu persisted & activated" }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId/orders",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "query": {
+            "status": "OrderStatus?",
+            "from": "ISO date?",
+            "to": "ISO date?",
+            "phone": "string? (filters session.customerPhone contains)"
+          },
+          "response": "Array<Order> (items+session eager-loaded, sorted desc by createdAt)"
+        },
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId/orders/stream",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "response": "text/event-stream; events {event:'order_created'|'order_updated', data:Order}"
+        },
+        {
+          "method": "GET",
+          "path": "/orders/:orderId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (owns order)]",
+          "response": "Order (includes merchant via session.merchant)"
+        },
+        {
+          "method": "PATCH",
+          "path": "/orders/:orderId/status",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (owns order)]",
+          "body": { "status": "OrderStatus" },
+          "response": "Order (updated status)"
+        }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/merchants/:merchantId/sessions",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (same merchant)"],
+          "response": "Array<Session> (includes last 5 messages + orders)"
+        },
+        {
+          "method": "GET",
+          "path": "/sessions/:sessionId",
+          "auth": true,
+          "allowedRoles": ["SUPER_ADMIN", "MERCHANT_ADMIN (owns session)]",
+          "response": "Session (all messages + orders + merchant)"
+        }
+      ]
+    }
+  ],
+  "uploads": {
+    "storage": "Local disk at config.UPLOAD_DIR (default ./uploads). Filenames are timestamp-randomized.",
+    "maxFilesPerRequest": 5
+  },
+  "webhooks": {
+    "verify": {
+      "method": "GET",
+      "path": "/webhooks/whatsapp",
+      "query": { "hub.mode": "subscribe", "hub.verify_token": "must equal META_VERIFY_TOKEN", "hub.challenge": "echoed" },
+      "response": "200 + challenge or 403"
+    },
+    "inbound": {
+      "method": "POST",
+      "path": "/webhooks/whatsapp",
+      "body": "Meta WhatsApp Cloud payload",
+      "processing": [
+        "looks up WhatsApp line by metadata.phone_number_id",
+        "creates/updates Session, appends MessageRole.user",
+        "calls OpenAI order assistant with menu+history",
+        "updates Session state/status, appends assistant response",
+        "optionally creates Order from AI summary",
+        "sends WhatsApp reply via Meta API"
+      ],
+      "response": "200 on success, 500 on failure"
+    }
+  },
+  "streaming": {
+    "orders": {
+      "path": "/merchants/:merchantId/orders/stream",
+      "headers": { "Accept": "text/event-stream" },
+      "events": [
+        { "name": "order_created", "data": "Order" },
+        { "name": "order_updated", "data": "Order" }
+      ],
+      "heartbeat": "standard SSE (no ping payloads)"
+    }
+  },
+  "notes": [
+    "All protected routes rely on JWT extracted via requireAuth middleware.",
+    "requireMerchantAccess allows SUPER_ADMIN bypass; MERCHANT_ADMIN is limited to req.user.merchantId.",
+    "Validation errors use Zod; see details object for per-field issues.",
+    "Money fields are Prisma Decimal instances serialized as strings; handle in frontend accordingly."
+  ]
+}
