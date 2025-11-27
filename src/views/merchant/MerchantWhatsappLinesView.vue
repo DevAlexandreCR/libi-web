@@ -11,8 +11,11 @@ import type { EmbeddedSignupPayload } from '@/services/api/whatsappLinesApi'
 const { t } = useI18n()
 const whatsappLinesStore = useWhatsappLinesStore()
 const auth = useAuthStore()
-const metaAppId = import.meta.env.VITE_META_APP_ID || ''
-const metaRedirect = import.meta.env.VITE_META_REDIRECT_URI
+const embeddedSignupConfigId =
+  import.meta.env.VITE_META_CONFIG_ID ||
+  import.meta.env.VITE_FACEBOOK_APP_ID ||
+  import.meta.env.VITE_META_APP_ID ||
+  ''
 
 onMounted(() => {
   if (auth.merchantId) whatsappLinesStore.fetchByMerchant(auth.merchantId)
@@ -41,8 +44,7 @@ const handleComplete = async (payload: EmbeddedSignupPayload) => {
         <h3 class="text-lg font-semibold mb-2">{{ t('whatsapp.embeddedTitle') }}</h3>
         <p class="text-sm text-slate-600 mb-3">{{ t('whatsapp.embeddedSubtitle') }}</p>
         <EmbeddedSignup
-          :app-id="metaAppId"
-          :redirect-uri="metaRedirect"
+          :config-id="embeddedSignupConfigId"
           @complete="handleComplete"
         >
           {{ t('whatsapp.signupCta') }}

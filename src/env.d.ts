@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_DEFAULT_LOCALE?: string
   readonly VITE_FACEBOOK_APP_ID?: string
   readonly VITE_META_APP_ID?: string
+  readonly VITE_META_CONFIG_ID?: string
   readonly VITE_WHATSAPP_APP_SECRET?: string
   readonly VITE_META_WHATSAPP_APP_SECRET?: string
   readonly VITE_META_APP_SECRET?: string
