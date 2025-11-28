@@ -15,7 +15,7 @@ defineEmits(['close'])
         @click.self="$emit('close')"
       >
         <div class="card max-w-2xl w-full p-6 relative">
-          <button class="absolute right-3 top-3 text-slate-500 hover:text-slate-900" @click="$emit('close')">✕</button>
+          <button class="absolute right-3 top-3 text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" @click="$emit('close')">✕</button>
           <h3 v-if="title" class="text-xl font-semibold mb-4">{{ title }}</h3>
           <slot />
         </div>

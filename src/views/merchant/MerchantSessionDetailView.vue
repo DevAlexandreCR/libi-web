@@ -29,7 +29,7 @@ onMounted(async () => {
         <h1 class="text-2xl font-bold">
           {{ t('sessions.sessionId') }}: {{ session.id }}
         </h1>
-        <p class="text-slate-600">{{ session.customerPhone }}</p>
+        <p class="text-slate-600 dark:text-slate-300">{{ session.customerPhone }}</p>
       </div>
       <BaseBadge
         :variant="
@@ -54,18 +54,18 @@ onMounted(async () => {
             :class="message.role === 'assistant' ? 'justify-end' : 'justify-start'"
           >
             <div
-              class="px-4 py-3 rounded-2xl max-w-[80%] shadow-soft"
-              :class="
-                message.role === 'assistant'
-                  ? 'bg-primary-600 text-white rounded-tr-sm'
-                  : message.role === 'system'
-                    ? 'bg-slate-100 text-slate-800 border border-border'
-                    : 'bg-white text-slate-900 rounded-tl-sm border border-border'
-              "
-            >
-              <p class="text-sm leading-relaxed">{{ message.content }}</p>
-              <span class="text-[10px] opacity-70">{{ new Date(message.createdAt).toLocaleTimeString() }}</span>
-            </div>
+            class="px-4 py-3 rounded-2xl max-w-[80%] shadow-soft"
+            :class="
+              message.role === 'assistant'
+                ? 'bg-primary-600 text-white rounded-tr-sm dark:bg-primary-500 dark:text-slate-900'
+                : message.role === 'system'
+                  ? 'bg-slate-100 text-slate-800 border border-border dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700'
+                  : 'bg-white text-slate-900 rounded-tl-sm border border-border dark:bg-slate-800 dark:text-slate-50 dark:border-slate-700'
+            "
+          >
+            <p class="text-sm leading-relaxed">{{ message.content }}</p>
+            <span class="text-[10px] opacity-70">{{ new Date(message.createdAt).toLocaleTimeString() }}</span>
+          </div>
           </div>
         </div>
       </BaseCard>
@@ -88,5 +88,5 @@ onMounted(async () => {
       </BaseCard>
     </div>
   </div>
-  <div v-else class="text-center text-slate-500 py-6">{{ t('common.loading') }}</div>
+  <div v-else class="text-center text-slate-500 dark:text-slate-300 py-6">{{ t('common.loading') }}</div>
 </template>

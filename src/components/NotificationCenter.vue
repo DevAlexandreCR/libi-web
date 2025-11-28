@@ -16,9 +16,9 @@ watchEffect(() => {
 })
 
 const bgMap: Record<string, string> = {
-  success: 'bg-green-50 border-green-200 text-green-800',
-  error: 'bg-red-50 border-red-200 text-red-800',
-  info: 'bg-blue-50 border-blue-200 text-blue-800'
+  success: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-100',
+  error: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-100',
+  info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-primary-900/40 dark:border-primary-800 dark:text-primary-100'
 }
 </script>
 

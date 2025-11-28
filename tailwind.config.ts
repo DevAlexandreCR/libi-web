@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{vue,ts,tsx}'],
   theme: {
     extend: {
@@ -10,29 +11,29 @@ const config: Config = {
       },
       colors: {
         primary: {
-          50: '#eef5ff',
-          100: '#dbe8ff',
-          200: '#b9d1ff',
-          300: '#8aadff',
-          400: '#5e86ff',
-          500: '#345cff',
-          600: '#2545db',
-          700: '#1d35ac',
-          800: '#192f86',
-          900: '#192c69',
-          950: '#0f1b3f'
+          50: '#e8f8ff',
+          100: '#c8edff',
+          200: '#97deff',
+          300: '#63ceff',
+          400: '#35bfff',
+          500: '#14b8ff',
+          600: '#089ee3',
+          700: '#067db4',
+          800: '#065f87',
+          900: '#064264',
+          950: '#032438'
         },
         accent: {
-          100: '#fff4e6',
-          200: '#ffe2bf',
-          300: '#ffcb8c',
-          400: '#ffb354',
-          500: '#ff941d',
-          600: '#ed7b07'
+          100: '#0b1524',
+          200: '#0f1f38',
+          300: '#102a4e',
+          400: '#0c3567',
+          500: '#0a4387',
+          600: '#0a4ea3'
         },
-        muted: '#6b7280',
-        surface: '#f7f8fb',
-        border: '#e5e7eb'
+        muted: '#6b7a90',
+        surface: '#f2f6fb',
+        border: '#d8e2f2'
       },
       boxShadow: {
         card: '0 15px 45px rgba(18, 38, 63, 0.12)',

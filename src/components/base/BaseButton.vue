@@ -12,9 +12,12 @@ const props = defineProps<{
 }>()
 
 const variantClasses: Record<string, string> = {
-  primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-card',
-  secondary: 'bg-white text-primary-700 border border-primary-100 hover:border-primary-200 shadow-soft',
-  ghost: 'bg-transparent border border-border text-slate-700 hover:border-primary-300'
+  primary:
+    'bg-primary-600 hover:bg-primary-500 text-white shadow-card dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-slate-900',
+  secondary:
+    'bg-white/90 text-primary-700 border border-primary-100 hover:border-primary-200 shadow-soft dark:bg-slate-900/60 dark:text-primary-100 dark:border-slate-700 dark:hover:border-primary-400',
+  ghost:
+    'bg-transparent border border-border text-slate-700 hover:border-primary-300 dark:text-slate-100 dark:border-slate-700 dark:hover:border-primary-400'
 }
 
 const classes = computed(
