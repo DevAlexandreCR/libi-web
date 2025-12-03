@@ -222,6 +222,22 @@ const en = {
     updateSuccess: 'Updated successfully.',
     updateError: 'Something went wrong, please try again.'
   },
+  settings: {
+    notifications: {
+      title: 'Order Notifications',
+      description: 'Configure how you want to receive alerts for new orders and payments.',
+      soundEnabled: 'Enable notification sound',
+      soundEnabledDescription: 'Play a sound when new orders or payment proofs arrive.',
+      volume: 'Sound volume',
+      testSound: 'Test sound',
+      info: {
+        title: 'Notification types',
+        orderCreated: 'New order created',
+        paymentProof: 'Payment proof received',
+        paymentVerified: 'Payment verified'
+      }
+    }
+  },
   statuses: {
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',

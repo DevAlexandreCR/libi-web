@@ -10,12 +10,15 @@ import BaseSelect from '@/components/base/BaseSelect.vue'
 import BaseToggle from '@/components/base/BaseToggle.vue'
 import { usePaymentAccountsStore } from '@/stores/paymentAccounts'
 import { useAuthStore } from '@/stores/auth'
+import { useMerchantStore } from '@/stores/merchants'
+import { notificationSoundService } from '@/services/notificationSound'
 import type { PaymentAccount, PaymentAccountType } from '@/types'
 import type { PaymentAccountInput } from '@/services/api/paymentAccountsApi'
 
 const { t } = useI18n()
 const auth = useAuthStore()
 const paymentAccountsStore = usePaymentAccountsStore()
+const merchantStore = useMerchantStore()
 
 const showModal = ref(false)
 const editing = ref<PaymentAccount | null>(null)
@@ -28,6 +31,12 @@ const form = reactive<PaymentAccountInput>({
   isActive: true
 })
 const errors = reactive<Record<string, string>>({})
+
+// Configuración de notificaciones
+const notificationSettings = reactive({
+  soundEnabled: true,
+  soundVolume: 0.7
+})
 
 const accountTypeOptions = computed(() => [
   { label: t('paymentAccounts.types.NEQUI'), value: 'NEQUI' },
@@ -99,8 +108,41 @@ watch(
   }
 )
 
+// Watchers para configuración de notificaciones
+watch(() => notificationSettings.soundEnabled, (enabled) => {
+  notificationSoundService.setEnabled(enabled)
+  if (auth.merchantId && merchantStore.selected) {
+    merchantStore.save({ 
+      id: auth.merchantId, 
+      notificationSoundEnabled: enabled 
+    })
+  }
+})
+
+watch(() => notificationSettings.soundVolume, (volume) => {
+  notificationSoundService.setVolumen(volume)
+  if (auth.merchantId && merchantStore.selected) {
+    merchantStore.save({ 
+      id: auth.merchantId, 
+      notificationSoundVolume: volume 
+    })
+  }
+})
+
+const testNotificationSound = () => {
+  notificationSoundService.testSound()
+}
+
 onMounted(() => {
-  if (auth.merchantId) paymentAccountsStore.fetch(auth.merchantId)
+  if (auth.merchantId) {
+    paymentAccountsStore.fetch(auth.merchantId)
+    merchantStore.fetchById(auth.merchantId).then(() => {
+      if (merchantStore.selected) {
+        notificationSettings.soundEnabled = merchantStore.selected.notificationSoundEnabled ?? true
+        notificationSettings.soundVolume = merchantStore.selected.notificationSoundVolume ?? 0.7
+      }
+    })
+  }
 })
 </script>
 
@@ -164,6 +206,62 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+      </div>
+    </BaseCard>
+
+    <!-- Configuración de Notificaciones -->
+    <BaseCard>
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold">{{ t('settings.notifications.title') }}</h3>
+        <p class="text-sm text-slate-600">{{ t('settings.notifications.description') }}</p>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Habilitar/Deshabilitar Sonido -->
+        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {{ t('settings.notifications.soundEnabled') }}
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+              {{ t('settings.notifications.soundEnabledDescription') }}
+            </p>
+          </div>
+          <BaseToggle v-model="notificationSettings.soundEnabled" />
+        </div>
+
+        <!-- Control de Volumen -->
+        <div v-if="notificationSettings.soundEnabled" class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {{ t('settings.notifications.volume') }}
+            </p>
+            <span class="text-sm font-mono text-slate-600">{{ Math.round(notificationSettings.soundVolume * 100) }}%</span>
+          </div>
+          <input
+            v-model.number="notificationSettings.soundVolume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700"
+          />
+          <div class="flex justify-end mt-3">
+            <BaseButton variant="ghost" size="sm" icon="volume-2" @click="testNotificationSound">
+              {{ t('settings.notifications.testSound') }}
+            </BaseButton>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="text-xs text-slate-500 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p class="font-semibold text-blue-900 dark:text-blue-100 mb-2">ℹ️ {{ t('settings.notifications.info.title') }}</p>
+          <ul class="list-disc list-inside space-y-1 text-blue-800 dark:text-blue-200">
+            <li>{{ t('settings.notifications.info.orderCreated') }}</li>
+            <li>{{ t('settings.notifications.info.paymentProof') }}</li>
+            <li>{{ t('settings.notifications.info.paymentVerified') }}</li>
+          </ul>
+        </div>
       </div>
     </BaseCard>
 

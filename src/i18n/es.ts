@@ -223,6 +223,22 @@ const es = {
     updateSuccess: 'Actualizado correctamente.',
     updateError: 'Algo falló, intenta nuevamente.'
   },
+  settings: {
+    notifications: {
+      title: 'Notificaciones de Pedidos',
+      description: 'Configura cómo quieres recibir alertas de nuevos pedidos y pagos.',
+      soundEnabled: 'Activar sonido de notificación',
+      soundEnabledDescription: 'Reproduce un sonido cuando lleguen nuevos pedidos o comprobantes de pago.',
+      volume: 'Volumen del sonido',
+      testSound: 'Probar sonido',
+      info: {
+        title: 'Tipos de notificaciones',
+        orderCreated: 'Nuevo pedido creado',
+        paymentProof: 'Comprobante de pago recibido',
+        paymentVerified: 'Pago verificado'
+      }
+    }
+  },
   statuses: {
     ACTIVE: 'Activo',
     INACTIVE: 'Inactivo',

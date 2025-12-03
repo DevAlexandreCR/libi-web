@@ -32,6 +32,8 @@ export interface Merchant {
   address?: string | null
   phone?: string | null
   timezone?: string | null
+  notificationSoundEnabled?: boolean
+  notificationSoundVolume?: number
   createdAt: string
   updatedAt: string
 }
