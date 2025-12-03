@@ -56,14 +56,23 @@ const loadProofImage = async () => {
 
 const order = computed(() => ordersStore.selected)
 
-const nextStatuses: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ['IN_PREPARATION', 'CANCELLED'],
-  IN_PREPARATION: ['READY', 'CANCELLED'],
-  DELIVERING: ['DELIVERED'],
-  READY: ['DELIVERING', 'DELIVERED'],
-  DELIVERED: [],
-  CANCELLED: []
-}
+const nextStatuses = computed<OrderStatus[]>(() => {
+  if (!order.value) return []
+  
+  const isDelivery = order.value.deliveryType === 'delivery'
+  const status = order.value.status
+  
+  const statusFlow: Record<OrderStatus, { delivery: OrderStatus[]; pickup: OrderStatus[] }> = {
+    PENDING: { delivery: ['IN_PREPARATION', 'CANCELLED'], pickup: ['IN_PREPARATION', 'CANCELLED'] },
+    IN_PREPARATION: { delivery: ['READY', 'CANCELLED'], pickup: ['READY', 'CANCELLED'] },
+    DELIVERING: { delivery: ['DELIVERED'], pickup: [] },
+    READY: { delivery: ['DELIVERING', 'CANCELLED'], pickup: ['DELIVERED', 'CANCELLED'] },
+    DELIVERED: { delivery: [], pickup: [] },
+    CANCELLED: { delivery: [], pickup: [] }
+  }
+  
+  return isDelivery ? statusFlow[status].delivery : statusFlow[status].pickup
+})
 
 const updateStatus = async (status: OrderStatus) => {
   if (!auth.merchantId || !order.value) return
@@ -121,7 +130,7 @@ const verifyPayment = async (verified: boolean) => {
       </div>
       <div class="flex gap-2">
         <BaseButton
-          v-for="status in nextStatuses[order.status]"
+          v-for="status in nextStatuses"
           :key="status"
           size="sm"
           icon="arrow-right"
