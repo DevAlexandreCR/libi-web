@@ -9,7 +9,6 @@ import BaseModal from '@/components/base/BaseModal.vue'
 import { useOrdersStore } from '@/stores/orders'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
-import http from '@/services/api/http'
 import type { OrderStatus } from '@/types'
 
 const { t } = useI18n()
@@ -83,11 +82,8 @@ const verifyPayment = async (verified: boolean) => {
 }
 
 const resolveProofUrl = (url?: string | null) => {
-  if (!url) return ''
-  if (/^https?:\/\//i.test(url)) return url
-  const base = (http.defaults.baseURL || window.location.origin).replace(/\/api\/?$/, '').replace(/\/$/, '')
-  const normalized = url.startsWith('/') ? url : `/${url}`
-  return `${base}${normalized}`
+  if (!url) return null
+    return `${import.meta.env.VITE_API_BASE_URL}/${url}`
 }
 </script>
 
