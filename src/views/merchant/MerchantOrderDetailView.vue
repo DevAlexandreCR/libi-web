@@ -19,14 +19,40 @@ const notifications = useNotificationStore()
 
 const orderId = computed(() => route.params.id as string)
 const proofPreview = ref<string | undefined>(undefined)
-const proofSrc = computed(() => resolveProofUrl(order.value?.paymentProofUrl))
+const proofSrc = ref<string | undefined>(undefined)
 
 onMounted(async () => {
   if (auth.merchantId && orderId.value) {
     await ordersStore.fetchById(auth.merchantId, orderId.value)
     ordersStore.markAsSeen(orderId.value)
+    await loadProofImage()
   }
 })
+
+const loadProofImage = async () => {
+  const url = order.value?.paymentProofUrl
+  if (!url) {
+    proofSrc.value = undefined
+    return
+  }
+  
+  try {
+    const fullUrl = `${import.meta.env.VITE_API_BASE_URL}/${url}`
+    const response = await fetch(fullUrl, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`
+      }
+    })
+    
+    if (response.ok) {
+      const blob = await response.blob()
+      proofSrc.value = URL.createObjectURL(blob)
+    }
+  } catch (error) {
+    console.error('Error loading payment proof:', error)
+    proofSrc.value = undefined
+  }
+}
 
 const order = computed(() => ordersStore.selected)
 
@@ -81,10 +107,7 @@ const verifyPayment = async (verified: boolean) => {
   await ordersStore.verifyPayment(auth.merchantId, order.value.id, verified)
 }
 
-const resolveProofUrl = (url?: string | null) => {
-  if (!url) return undefined
-    return `${import.meta.env.VITE_API_BASE_URL}/${url}`
-}
+
 </script>
 
 <template>
@@ -165,7 +188,7 @@ const resolveProofUrl = (url?: string | null) => {
               <img
                 :src="proofSrc"
                 :alt="t('orders.paymentProof')"
-                class="w-full rounded-lg border border-border cursor-pointer hover:opacity-90 transition"
+                class="w-32 h-32 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90 transition"
                 @click="proofPreview = proofSrc"
               />
               <div class="flex justify-between items-center">
@@ -219,7 +242,7 @@ const resolveProofUrl = (url?: string | null) => {
         </div>
       </div>
     </BaseCard>
-    <BaseModal :open="!!proofPreview" :title="t('orders.paymentProof')" @close="proofPreview = null">
+    <BaseModal :open="!!proofPreview" :title="t('orders.paymentProof')" @close="proofPreview = undefined">
       <img v-if="proofPreview" :src="proofPreview" :alt="t('orders.paymentProof')" class="w-full rounded-xl" />
     </BaseModal>
   </div>
