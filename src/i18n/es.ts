@@ -31,6 +31,7 @@ const es = {
     createdAt: 'Creado',
     continue: 'Continuar',
     accept: 'Aceptar y guardar',
+    open: 'Abrir',
     error: 'Error',
     success: 'Éxito'
   },
@@ -139,10 +140,52 @@ const es = {
     statusTimeline: 'Línea de estado',
     advanceStatus: 'Avanzar estado',
     newOrder: 'Nuevo pedido',
+    paymentProof: 'Comprobante de pago',
+    paymentStatus: {
+      awaitingProof: 'Esperando comprobante',
+      proofReceived: 'Comprobante recibido',
+      verified: 'Pago verificado',
+      rejected: 'Pago rechazado'
+    },
+    paymentStatusLabel: 'Estado de pago',
+    verifyPayment: 'Verificar pago',
+    rejectPayment: 'Rechazar pago',
+    awaitingPaymentProofFilter: 'Esperando comprobante',
+    paymentVerificationSuccess: 'Estado de pago actualizado.',
+    paymentProofReceived: 'Comprobante recibido.',
+    paymentProofMissing: 'Se requiere el comprobante antes de verificar.',
     filters: {
       status: 'Estado',
       dateRange: 'Rango de fechas',
       search: 'Teléfono o ID de pedido'
+    }
+  },
+  paymentAccounts: {
+    title: 'Cuentas de pago',
+    description:
+      'Administra las cuentas para recibir transferencias. Solo las cuentas activas se mostrarán en la confirmación.',
+    add: 'Agregar cuenta',
+    edit: 'Editar cuenta',
+    deleteConfirm: '¿Seguro deseas eliminar esta cuenta de pago?',
+    empty: 'Aún no tienes cuentas de pago configuradas.',
+    type: 'Tipo',
+    accountNumber: 'Número de cuenta',
+    accountHolder: 'Titular',
+    bankName: 'Banco',
+    descriptionLabel: 'Descripción',
+    isActive: 'Activa',
+    activeHint: 'Mostrar esta cuenta en las instrucciones de transferencia que ve el cliente.',
+    actions: 'Acciones',
+    form: {
+      createTitle: 'Agregar cuenta de pago',
+      editTitle: 'Editar cuenta de pago'
+    },
+    types: {
+      NEQUI: 'Nequi',
+      BANCOLOMBIA: 'Bancolombia',
+      DAVIPLATA: 'Daviplata',
+      BANK_ACCOUNT: 'Cuenta bancaria',
+      OTHER: 'Otro'
     }
   },
   sessions: {
@@ -187,6 +230,7 @@ const es = {
     PENDING: 'Pendiente',
     IN_PREPARATION: 'En preparación',
     READY: 'Listo',
+    DELIVERING: 'En camino',
     DELIVERED: 'Entregado',
     CANCELLED: 'Cancelado',
     NEW: 'Nueva',

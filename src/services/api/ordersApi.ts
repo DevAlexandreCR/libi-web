@@ -6,6 +6,7 @@ export interface OrderFilters {
   from?: string
   to?: string
   phone?: string
+  awaitingPaymentProof?: boolean
 }
 
 export const ordersApi = {
@@ -21,6 +22,10 @@ export const ordersApi = {
     const { data } = await http.patch(`/orders/${orderId}/status`, {
       status
     })
+    return data
+  },
+  async verifyPayment(merchantId: string, orderId: string, verified: boolean): Promise<Order> {
+    const { data } = await http.patch(`/merchants/${merchantId}/orders/${orderId}/verify-payment`, { verified })
     return data
   }
 }

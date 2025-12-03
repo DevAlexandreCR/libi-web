@@ -31,6 +31,7 @@ const en = {
     createdAt: 'Created at',
     continue: 'Continue',
     accept: 'Accept & save',
+    open: 'Open',
     error: 'Error',
     success: 'Success'
   },
@@ -139,10 +140,51 @@ const en = {
     statusTimeline: 'Status timeline',
     advanceStatus: 'Advance status',
     newOrder: 'New order',
+    paymentProof: 'Payment proof',
+    paymentStatus: {
+      awaitingProof: 'Awaiting payment proof',
+      proofReceived: 'Proof received',
+      verified: 'Payment verified',
+      rejected: 'Payment rejected'
+    },
+    paymentStatusLabel: 'Payment status',
+    verifyPayment: 'Verify payment',
+    rejectPayment: 'Reject payment',
+    awaitingPaymentProofFilter: 'Awaiting payment proof',
+    paymentVerificationSuccess: 'Payment verification updated.',
+    paymentProofReceived: 'Payment proof received.',
+    paymentProofMissing: 'Payment proof is required before verifying.',
     filters: {
       status: 'Status',
       dateRange: 'Date range',
       search: 'Phone or order ID'
+    }
+  },
+  paymentAccounts: {
+    title: 'Payment accounts',
+    description: 'Accounts used for customer transfers. Only active accounts are shown in confirmation messages.',
+    add: 'Add account',
+    edit: 'Edit account',
+    deleteConfirm: 'Are you sure you want to delete this payment account?',
+    empty: 'No payment accounts configured yet.',
+    type: 'Type',
+    accountNumber: 'Account number',
+    accountHolder: 'Account holder',
+    bankName: 'Bank name',
+    descriptionLabel: 'Description',
+    isActive: 'Active',
+    activeHint: 'Show this account in the transfer instructions sent to customers.',
+    actions: 'Actions',
+    form: {
+      createTitle: 'Add payment account',
+      editTitle: 'Edit payment account'
+    },
+    types: {
+      NEQUI: 'Nequi',
+      BANCOLOMBIA: 'Bancolombia',
+      DAVIPLATA: 'Daviplata',
+      BANK_ACCOUNT: 'Bank account',
+      OTHER: 'Other'
     }
   },
   sessions: {
@@ -187,6 +229,7 @@ const en = {
     PENDING: 'Pending',
     IN_PREPARATION: 'In preparation',
     READY: 'Ready',
+    DELIVERING: 'Out for delivery',
     DELIVERED: 'Delivered',
     CANCELLED: 'Cancelled',
     NEW: 'New',

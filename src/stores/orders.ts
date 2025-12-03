@@ -15,6 +15,7 @@ interface OrdersState {
     phone?: string
     from?: string
     to?: string
+    awaitingPaymentProof?: boolean
   }
   liveNewOrders: Set<string>
   eventSource?: EventSource
@@ -30,7 +31,8 @@ export const useOrdersStore = defineStore('orders', {
       status: '',
       phone: '',
       from: undefined,
-      to: undefined
+      to: undefined,
+      awaitingPaymentProof: undefined
     },
     liveNewOrders: new Set<string>(),
     eventSource: undefined
@@ -43,16 +45,17 @@ export const useOrdersStore = defineStore('orders', {
           status: this.filters.status || undefined,
           from: this.filters.from,
           to: this.filters.to,
-          phone: this.filters.phone
+          phone: this.filters.phone,
+          awaitingPaymentProof: this.filters.awaitingPaymentProof
         })
       } finally {
         this.loadingList = false
       }
     },
-    async fetchById(_merchantId: string, id: string) {
+    async fetchById(merchantId: string, id: string) {
       this.loadingDetail = true
       try {
-        this.selected = await ordersApi.get(id)
+        this.selected = await ordersApi.get(id, merchantId)
       } finally {
         this.loadingDetail = false
       }
@@ -73,6 +76,22 @@ export const useOrdersStore = defineStore('orders', {
         this.loadingDetail = false
       }
     },
+    async verifyPayment(merchantId: string, id: string, verified: boolean) {
+      this.loadingDetail = true
+      try {
+        const order = await ordersApi.verifyPayment(merchantId, id, verified)
+        this.selected = order
+        this.list = this.list.map((o) => (o.id === id ? order : o))
+        useNotificationStore().push({
+          id: crypto.randomUUID(),
+          type: 'success',
+          title: 'Success',
+          message: 'orders.paymentVerificationSuccess'
+        })
+      } finally {
+        this.loadingDetail = false
+      }
+    },
     connectLiveUpdates(merchantId: string) {
       if (this.eventSource) {
         this.eventSource.close()
@@ -85,18 +104,50 @@ export const useOrdersStore = defineStore('orders', {
       }
 
       this.eventSource = new EventSource(url.toString())
-      const handleEvent = (event: MessageEvent) => {
+      const handleOrderEvent = (event: MessageEvent) => {
         try {
           const payload = JSON.parse(event.data) as Order
           this.list = [payload, ...this.list.filter((o) => o.id !== payload.id)]
           this.liveNewOrders.add(payload.id)
+          if (this.selected?.id === payload.id) {
+            this.selected = payload
+          }
         } catch (error) {
           console.error('Failed to parse live order', error)
         }
       }
-      this.eventSource.onmessage = handleEvent
-      this.eventSource.addEventListener('order_created', handleEvent)
-      this.eventSource.addEventListener('order_updated', handleEvent)
+      const handlePaymentProof = (event: MessageEvent) => {
+        try {
+          const payload = JSON.parse(event.data) as { orderId: string; paymentProofUrl?: string }
+          this.list = this.list.map((o) =>
+            o.id === payload.orderId
+              ? { ...o, paymentProofUrl: payload.paymentProofUrl, awaitingPaymentProof: true, paymentVerified: false }
+              : o
+          )
+          this.liveNewOrders.add(payload.orderId)
+          if (this.selected?.id === payload.orderId) {
+            this.selected = {
+              ...this.selected,
+              paymentProofUrl: payload.paymentProofUrl,
+              awaitingPaymentProof: true,
+              paymentVerified: false
+            }
+          }
+          useNotificationStore().push({
+            id: crypto.randomUUID(),
+            type: 'info',
+            title: 'Info',
+            message: 'orders.paymentProofReceived'
+          })
+        } catch (error) {
+          console.error('Failed to parse payment proof event', error)
+        }
+      }
+      this.eventSource.onmessage = handleOrderEvent
+      this.eventSource.addEventListener('order_created', handleOrderEvent)
+      this.eventSource.addEventListener('order_updated', handleOrderEvent)
+      this.eventSource.addEventListener('payment_verified', handleOrderEvent)
+      this.eventSource.addEventListener('payment_proof_uploaded', handlePaymentProof)
       this.eventSource.onerror = (error) => {
         console.error('Order stream error', error)
       }

@@ -1,6 +1,12 @@
 export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN'
 export type WhatsAppLineStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING_CONFIG'
-export type OrderStatus = 'PENDING' | 'IN_PREPARATION' | 'READY' | 'DELIVERED' | 'CANCELLED'
+export type OrderStatus =
+  | 'PENDING'
+  | 'IN_PREPARATION'
+  | 'READY'
+  | 'DELIVERING'
+  | 'DELIVERED'
+  | 'CANCELLED'
 export type SessionStatus =
   | 'NEW'
   | 'COLLECTING_ITEMS'
@@ -95,6 +101,21 @@ export interface MenuImportResult {
   menu: Menu
 }
 
+export type PaymentAccountType = 'NEQUI' | 'BANCOLOMBIA' | 'DAVIPLATA' | 'BANK_ACCOUNT' | 'OTHER'
+
+export interface PaymentAccount {
+  id: string
+  merchantId: string
+  type: PaymentAccountType
+  accountNumber: string
+  accountHolder: string
+  bankName?: string | null
+  description?: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Upload {
   id: string
   merchantId: string
@@ -147,6 +168,9 @@ export interface Order {
   paymentMethod?: string | null
   notes?: string | null
   estimatedTotal: string
+  paymentProofUrl?: string | null
+  paymentVerified: boolean
+  awaitingPaymentProof: boolean
   items: OrderItem[]
   session: OrderSessionSummary
   createdAt: string
