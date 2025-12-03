@@ -18,7 +18,7 @@ const auth = useAuthStore()
 const notifications = useNotificationStore()
 
 const orderId = computed(() => route.params.id as string)
-const proofPreview = ref<string | null>(null)
+const proofPreview = ref<string | undefined>(undefined)
 const proofSrc = computed(() => resolveProofUrl(order.value?.paymentProofUrl))
 
 onMounted(async () => {
@@ -82,7 +82,7 @@ const verifyPayment = async (verified: boolean) => {
 }
 
 const resolveProofUrl = (url?: string | null) => {
-  if (!url) return null
+  if (!url) return undefined
     return `${import.meta.env.VITE_API_BASE_URL}/${url}`
 }
 </script>
