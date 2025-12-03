@@ -124,10 +124,23 @@ export const useOrdersStore = defineStore('orders', {
         try {
           console.log('[Orders] Received order event:', event.type, event.data)
           const payload = JSON.parse(event.data) as Order
-          this.list = [payload, ...this.list.filter((o) => o.id !== payload.id)]
+
+          // order_updated NO incluye items según la API, hacer merge con datos existentes
+          const existingOrder = this.list.find((o) => o.id === payload.id)
+          const mergedPayload =
+            event.type === 'order_updated' && existingOrder
+              ? { ...payload, items: existingOrder.items }
+              : payload
+
+          this.list = [mergedPayload, ...this.list.filter((o) => o.id !== payload.id)]
           this.liveNewOrders.add(payload.id)
+
+          // Hacer merge también para el pedido seleccionado
           if (this.selected?.id === payload.id) {
-            this.selected = payload
+            this.selected =
+              event.type === 'order_updated'
+                ? { ...this.selected, ...payload, items: this.selected.items }
+                : mergedPayload
           }
 
           // Mostrar notificación visual
