@@ -195,7 +195,18 @@ const es = {
     linkedOrder: 'Pedido vinculado',
     status: 'Estado',
     conversation: 'Conversación',
-    metadata: 'Metadatos de la sesión'
+    metadata: 'Metadatos de la sesión',
+    manualMode: 'Modo manual',
+    autoMode: 'Modo automático',
+    respondingManually: 'Estás respondiendo manualmente',
+    botResponding: 'El bot está respondiendo automáticamente',
+    takeControl: 'Tomar control',
+    releaseChat: 'Liberar chat',
+    typeMessage: 'Escribe tu mensaje...',
+    send: 'Enviar',
+    noMessages: 'Aún no hay mensajes',
+    errorTogglingMode: 'Error al cambiar modo. Intenta de nuevo.',
+    errorSendingMessage: 'Error al enviar mensaje. Intenta de nuevo.'
   },
   menu: {
     title: 'Menú',

@@ -194,7 +194,18 @@ const en = {
     linkedOrder: 'Linked order',
     status: 'Status',
     conversation: 'Conversation',
-    metadata: 'Session metadata'
+    metadata: 'Session metadata',
+    manualMode: 'Manual mode',
+    autoMode: 'Auto mode',
+    respondingManually: 'You are responding manually',
+    botResponding: 'Bot is responding automatically',
+    takeControl: 'Take control',
+    releaseChat: 'Release chat',
+    typeMessage: 'Type your message...',
+    send: 'Send',
+    noMessages: 'No messages yet',
+    errorTogglingMode: 'Error changing mode. Please try again.',
+    errorSendingMessage: 'Error sending message. Please try again.'
   },
   menu: {
     title: 'Menu',

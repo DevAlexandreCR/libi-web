@@ -193,6 +193,7 @@ export interface Session {
   customerPhone: string
   status: SessionStatus
   state: Record<string, unknown> | null
+  manualMode: boolean
   lastInteractionAt: string
   messages?: SessionMessage[]
   orders?: SessionOrderSummary[]
