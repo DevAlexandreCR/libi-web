@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
@@ -28,11 +28,6 @@ const fetchOrders = async () => {
 
 onMounted(() => {
   fetchOrders()
-  if (auth.merchantId) ordersStore.connectLiveUpdates(auth.merchantId)
-})
-
-onUnmounted(() => {
-  ordersStore.disconnectLiveUpdates()
 })
 
 const statusVariant = (status: string) => {

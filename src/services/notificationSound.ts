@@ -2,7 +2,12 @@
  * Servicio de notificaciones de audio para eventos de pedidos
  */
 
-export type NotificationSoundType = 'order_created' | 'payment_proof_uploaded' | 'payment_verified'
+export type NotificationSoundType =
+  | 'order_created'
+  | 'payment_proof_uploaded'
+  | 'payment_verified'
+  | 'session_created'
+  | 'message_received'
 
 interface NotificationSoundConfig {
   enabled: boolean
@@ -207,6 +212,15 @@ class NotificationSoundService {
         frequency1: 900,
         frequency2: 1200,
         duration: 0.35
+      },
+      session_created: {
+        frequency1: 700,
+        frequency2: 850,
+        duration: 0.25
+      },
+      message_received: {
+        frequency1: 650,
+        duration: 0.15
       }
     }
     return configs[type]

@@ -2,10 +2,6 @@ import { defineStore } from 'pinia'
 import { ordersApi } from '@/services/api'
 import type { Order, OrderStatus } from '@/types'
 import { useNotificationStore } from './notifications'
-import { useAuthStore } from './auth'
-import { useMerchantStore } from './merchants'
-import http from '@/services/api/http'
-import { notificationSoundService } from '@/services/notificationSound'
 
 interface OrdersState {
   list: Order[]
@@ -20,7 +16,6 @@ interface OrdersState {
     awaitingPaymentProof?: boolean
   }
   liveNewOrders: Set<string>
-  eventSource?: EventSource
 }
 
 export const useOrdersStore = defineStore('orders', {
@@ -36,8 +31,7 @@ export const useOrdersStore = defineStore('orders', {
       to: undefined,
       awaitingPaymentProof: undefined
     },
-    liveNewOrders: new Set<string>(),
-    eventSource: undefined
+    liveNewOrders: new Set<string>()
   }),
   actions: {
     async fetch(merchantId: string) {
@@ -93,176 +87,6 @@ export const useOrdersStore = defineStore('orders', {
       } finally {
         this.loadingDetail = false
       }
-    },
-    connectLiveUpdates(merchantId: string) {
-      if (this.eventSource) {
-        console.log('[Orders] Closing existing EventSource connection')
-        this.eventSource.close()
-      }
-
-      const auth = useAuthStore()
-      const merchantStore = useMerchantStore()
-
-      // Inicializar el servicio de sonido con la configuración del merchant
-      if (merchantStore.selected) {
-        notificationSoundService.initialize(
-          merchantStore.selected.notificationSoundEnabled ?? true,
-          merchantStore.selected.notificationSoundVolume ?? 0.7
-        )
-      }
-
-      const base = http.defaults.baseURL
-      const url = new URL(`${base}/merchants/${merchantId}/orders/stream`)
-      if (auth.token) {
-        url.searchParams.set('token', auth.token)
-      }
-
-      console.log('[Orders] Connecting to SSE:', url.toString())
-      this.eventSource = new EventSource(url.toString())
-
-      console.log('[Orders] EventSource created, readyState:', this.eventSource.readyState)
-
-      const handleOrderEvent = (event: MessageEvent) => {
-        try {
-          console.log('[Orders] Received order event:', event.type, event.data)
-          const payload = JSON.parse(event.data) as Order
-
-          // order_updated NO incluye items según la API, hacer merge con datos existentes
-          const existingOrder = this.list.find((o) => o.id === payload.id)
-          const mergedPayload =
-            event.type === 'order_updated' && existingOrder
-              ? { ...payload, items: existingOrder.items }
-              : payload
-
-          this.list = [mergedPayload, ...this.list.filter((o) => o.id !== payload.id)]
-          this.liveNewOrders.add(payload.id)
-
-          // Hacer merge también para el pedido seleccionado
-          if (this.selected?.id === payload.id) {
-            this.selected =
-              event.type === 'order_updated'
-                ? { ...this.selected, ...payload, items: this.selected.items }
-                : mergedPayload
-          }
-
-          // Mostrar notificación visual
-          const notificationStore = useNotificationStore()
-          if (event.type === 'order_created') {
-            notificationStore.push({
-              id: crypto.randomUUID(),
-              type: 'order',
-              title: '🔔 Nuevo Pedido',
-              message: `Pedido #${payload.id} - $${Number(payload.estimatedTotal).toFixed(2)}`,
-              durationMs: 10000
-            })
-            // Reproducir sonido
-            notificationSoundService.play('order_created')
-          } else if (event.type === 'payment_verified') {
-            notificationStore.push({
-              id: crypto.randomUUID(),
-              type: 'success',
-              title: '✅ Pago Verificado',
-              message: `Pedido #${payload.id} - Pago confirmado`,
-              durationMs: 6000
-            })
-            notificationSoundService.play('payment_verified')
-          }
-        } catch (error) {
-          console.error('[Orders] Failed to parse live order event:', error, event)
-        }
-      }
-
-      const handlePaymentProof = (event: MessageEvent) => {
-        try {
-          console.log('[Orders] Received payment proof event:', event.data)
-          const payload = JSON.parse(event.data) as { orderId: string; paymentProofUrl?: string }
-          this.list = this.list.map((o) =>
-            o.id === payload.orderId
-              ? { ...o, paymentProofUrl: payload.paymentProofUrl, awaitingPaymentProof: true, paymentVerified: false }
-              : o
-          )
-          this.liveNewOrders.add(payload.orderId)
-          if (this.selected?.id === payload.orderId) {
-            this.selected = {
-              ...this.selected,
-              paymentProofUrl: payload.paymentProofUrl,
-              awaitingPaymentProof: true,
-              paymentVerified: false
-            }
-          }
-
-          // Mostrar notificación visual y sonido
-          useNotificationStore().push({
-            id: crypto.randomUUID(),
-            type: 'order',
-            title: '📸 Comprobante Recibido',
-            message: `Pedido #${payload.orderId} - Comprobante de pago cargado`,
-            durationMs: 10000
-          })
-          notificationSoundService.play('payment_proof_uploaded')
-        } catch (error) {
-          console.error('[Orders] Failed to parse payment proof event:', error, event)
-        }
-      }
-
-      const handleConnected = (event: MessageEvent) => {
-        console.log('[Orders] SSE connected event received:', event.data)
-        try {
-          const data = JSON.parse(event.data)
-          console.log('[Orders] Connection confirmed:', data)
-        } catch (error) {
-          console.log('[Orders] Connected with message:', event.data)
-        }
-      }
-
-      // Event handlers
-      this.eventSource.onopen = () => {
-        console.log('[Orders] SSE connection opened (onopen fired)')
-      }
-
-      // IMPORTANTE: El evento 'message' sin tipo específico captura eventos sin 'event: ' prefix
-      this.eventSource.onmessage = (event) => {
-        console.log('[Orders] Received default message event:', event.data)
-        // Podría ser el mensaje inicial de conexión
-        try {
-          const data = JSON.parse(event.data)
-          console.log('[Orders] Default message data:', data)
-        } catch (error) {
-          console.log('[Orders] Default message (not JSON):', event.data)
-        }
-      }
-
-      // Event listeners para eventos tipados
-      this.eventSource.addEventListener('connected', handleConnected)
-      this.eventSource.addEventListener('order_created', handleOrderEvent)
-      this.eventSource.addEventListener('order_updated', handleOrderEvent)
-      this.eventSource.addEventListener('payment_verified', handleOrderEvent)
-      this.eventSource.addEventListener('payment_proof_uploaded', handlePaymentProof)
-
-      // Debug: Verificar estado después de 2 segundos
-      setTimeout(() => {
-        console.log('[Orders] EventSource state after 2s:', {
-          readyState: this.eventSource?.readyState,
-          url: this.eventSource?.url,
-          withCredentials: this.eventSource?.withCredentials
-        })
-      }, 2000)
-
-      this.eventSource.onerror = (error) => {
-        console.error('[Orders] SSE connection error:', error)
-        console.log('[Orders] EventSource readyState:', this.eventSource?.readyState)
-        // EventSource.CONNECTING = 0, EventSource.OPEN = 1, EventSource.CLOSED = 2
-        if (this.eventSource?.readyState === EventSource.CLOSED) {
-          console.warn('[Orders] SSE connection closed, EventSource will auto-reconnect')
-        } else if (this.eventSource?.readyState === EventSource.CONNECTING) {
-          console.log('[Orders] SSE reconnecting...')
-        }
-      }
-    },
-    disconnectLiveUpdates() {
-      console.log('[Orders] Disconnecting SSE')
-      this.eventSource?.close()
-      this.eventSource = undefined
     },
     markAsSeen(id: string) {
       this.liveNewOrders.delete(id)

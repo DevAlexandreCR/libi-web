@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { authApi } from '@/services/api'
 import type { User, UserRole } from '@/types'
 import { useNotificationStore } from './notifications'
+import { useLiveUpdatesStore } from './liveUpdates'
 
 const TOKEN_KEY = 'libi_token'
 const USER_KEY = 'libi_user'
@@ -40,6 +41,12 @@ export const useAuthStore = defineStore('auth', {
           title: 'Success',
           message: 'notifications.loginSuccess'
         })
+
+        // Conectar automáticamente a SSE si es merchant
+        if (result.user.merchantId) {
+          const liveUpdates = useLiveUpdatesStore()
+          liveUpdates.connect(result.user.merchantId)
+        }
       } finally {
         this.loading = false
       }
@@ -51,6 +58,12 @@ export const useAuthStore = defineStore('auth', {
         this.token = savedToken
         try {
           this.user = JSON.parse(savedUser)
+
+          // Reconectar automáticamente a SSE si es merchant
+          if (this.user?.merchantId) {
+            const liveUpdates = useLiveUpdatesStore()
+            liveUpdates.connect(this.user.merchantId)
+          }
         } catch {
           this.user = null
           this.token = ''
@@ -64,6 +77,10 @@ export const useAuthStore = defineStore('auth', {
       this.initialized = true
     },
     logout() {
+      // Desconectar SSE antes de hacer logout
+      const liveUpdates = useLiveUpdatesStore()
+      liveUpdates.disconnect()
+
       this.user = null
       this.token = ''
       localStorage.removeItem(TOKEN_KEY)
