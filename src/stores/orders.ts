@@ -54,10 +54,10 @@ export const useOrdersStore = defineStore('orders', {
         this.loadingList = false
       }
     },
-    async fetchById(merchantId: string, id: string) {
+    async fetchById(_merchantId: string, id: string) {
       this.loadingDetail = true
       try {
-        this.selected = await ordersApi.get(id, merchantId)
+        this.selected = await ordersApi.get(id)
       } finally {
         this.loadingDetail = false
       }
@@ -148,10 +148,10 @@ export const useOrdersStore = defineStore('orders', {
           if (event.type === 'order_created') {
             notificationStore.push({
               id: crypto.randomUUID(),
-              type: 'info',
+              type: 'order',
               title: '🔔 Nuevo Pedido',
               message: `Pedido #${payload.id} - $${Number(payload.estimatedTotal).toFixed(2)}`,
-              durationMs: 8000
+              durationMs: 10000
             })
             // Reproducir sonido
             notificationSoundService.play('order_created')
@@ -192,10 +192,10 @@ export const useOrdersStore = defineStore('orders', {
           // Mostrar notificación visual y sonido
           useNotificationStore().push({
             id: crypto.randomUUID(),
-            type: 'info',
+            type: 'order',
             title: '📸 Comprobante Recibido',
             message: `Pedido #${payload.orderId} - Comprobante de pago cargado`,
-            durationMs: 8000
+            durationMs: 10000
           })
           notificationSoundService.play('payment_proof_uploaded')
         } catch (error) {

@@ -15,6 +15,8 @@ class NotificationSoundService {
     enabled: true,
     volume: 0.7
   }
+  private isAudioContextReady: boolean = false
+  private userInteractionListener: (() => void) | null = null
 
   /**
    * Inicializa el servicio con la configuración del merchant
@@ -22,6 +24,55 @@ class NotificationSoundService {
   initialize(enabled: boolean = true, volume: number = 0.7) {
     this.config.enabled = enabled
     this.config.volume = Math.max(0, Math.min(1, volume))
+
+    // Preparar AudioContext con la primera interacción del usuario
+    this.setupUserInteractionListener()
+  }
+
+  /**
+   * Configura un listener para inicializar el AudioContext con la primera interacción
+   */
+  private setupUserInteractionListener() {
+    if (this.isAudioContextReady || this.userInteractionListener) return
+
+    this.userInteractionListener = () => {
+      this.initializeAudioContext()
+      // Remover listeners después de la primera interacción
+      document.removeEventListener('click', this.userInteractionListener!)
+      document.removeEventListener('touchstart', this.userInteractionListener!)
+      document.removeEventListener('keydown', this.userInteractionListener!)
+      this.userInteractionListener = null
+    }
+
+    document.addEventListener('click', this.userInteractionListener, { once: false })
+    document.addEventListener('touchstart', this.userInteractionListener, { once: false })
+    document.addEventListener('keydown', this.userInteractionListener, { once: false })
+
+    console.log('[NotificationSound] Waiting for user interaction to enable audio')
+  }
+
+  /**
+   * Inicializa el AudioContext
+   */
+  private initializeAudioContext() {
+    if (this.isAudioContextReady) return
+
+    try {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+
+      // Reanudar el contexto si está suspendido
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this.isAudioContextReady = true
+          console.log('[NotificationSound] AudioContext resumed and ready')
+        })
+      } else {
+        this.isAudioContextReady = true
+        console.log('[NotificationSound] AudioContext initialized and ready')
+      }
+    } catch (error) {
+      console.error('[NotificationSound] Failed to initialize AudioContext:', error)
+    }
   }
 
   /**
@@ -36,7 +87,19 @@ class NotificationSoundService {
     try {
       // Inicializar audio context si es necesario
       if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+        this.initializeAudioContext()
+      }
+
+      // Verificar si el AudioContext está listo
+      if (!this.isAudioContextReady || !this.audioContext) {
+        console.warn('[NotificationSound] AudioContext not ready yet. Waiting for user interaction.')
+        this.showAutoplayWarning()
+        return
+      }
+
+      // Reanudar el contexto si está suspendido
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume()
       }
 
       // Generar sonido según el tipo
