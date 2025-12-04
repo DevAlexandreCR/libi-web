@@ -120,6 +120,8 @@ export const useOrdersStore = defineStore('orders', {
       console.log('[Orders] Connecting to SSE:', url.toString())
       this.eventSource = new EventSource(url.toString())
 
+      console.log('[Orders] EventSource created, readyState:', this.eventSource.readyState)
+
       const handleOrderEvent = (event: MessageEvent) => {
         try {
           console.log('[Orders] Received order event:', event.type, event.data)
@@ -203,23 +205,57 @@ export const useOrdersStore = defineStore('orders', {
         }
       }
 
-      // Event handlers
-      this.eventSource.onopen = () => {
-        console.log('[Orders] SSE connection opened successfully')
+      const handleConnected = (event: MessageEvent) => {
+        console.log('[Orders] SSE connected event received:', event.data)
+        try {
+          const data = JSON.parse(event.data)
+          console.log('[Orders] Connection confirmed:', data)
+        } catch (error) {
+          console.log('[Orders] Connected with message:', event.data)
+        }
       }
 
-      this.eventSource.onmessage = handleOrderEvent
+      // Event handlers
+      this.eventSource.onopen = () => {
+        console.log('[Orders] SSE connection opened (onopen fired)')
+      }
+
+      // IMPORTANTE: El evento 'message' sin tipo específico captura eventos sin 'event: ' prefix
+      this.eventSource.onmessage = (event) => {
+        console.log('[Orders] Received default message event:', event.data)
+        // Podría ser el mensaje inicial de conexión
+        try {
+          const data = JSON.parse(event.data)
+          console.log('[Orders] Default message data:', data)
+        } catch (error) {
+          console.log('[Orders] Default message (not JSON):', event.data)
+        }
+      }
+
+      // Event listeners para eventos tipados
+      this.eventSource.addEventListener('connected', handleConnected)
       this.eventSource.addEventListener('order_created', handleOrderEvent)
       this.eventSource.addEventListener('order_updated', handleOrderEvent)
       this.eventSource.addEventListener('payment_verified', handleOrderEvent)
       this.eventSource.addEventListener('payment_proof_uploaded', handlePaymentProof)
+
+      // Debug: Verificar estado después de 2 segundos
+      setTimeout(() => {
+        console.log('[Orders] EventSource state after 2s:', {
+          readyState: this.eventSource?.readyState,
+          url: this.eventSource?.url,
+          withCredentials: this.eventSource?.withCredentials
+        })
+      }, 2000)
 
       this.eventSource.onerror = (error) => {
         console.error('[Orders] SSE connection error:', error)
         console.log('[Orders] EventSource readyState:', this.eventSource?.readyState)
         // EventSource.CONNECTING = 0, EventSource.OPEN = 1, EventSource.CLOSED = 2
         if (this.eventSource?.readyState === EventSource.CLOSED) {
-          console.warn('[Orders] SSE connection closed, will attempt reconnection')
+          console.warn('[Orders] SSE connection closed, EventSource will auto-reconnect')
+        } else if (this.eventSource?.readyState === EventSource.CONNECTING) {
+          console.log('[Orders] SSE reconnecting...')
         }
       }
     },
