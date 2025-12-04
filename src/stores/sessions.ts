@@ -43,41 +43,47 @@ export const useSessionsStore = defineStore('sessions', {
     },
     async pauseSession(sessionId: string) {
       const updated = await sessionsApi.pause(sessionId)
+      console.log('🔴 Respuesta de pause:', updated)
+      console.log('🔴 manualMode en respuesta:', updated.manualMode)
       if (this.selected?.id === sessionId) {
-        // Preservar mensajes existentes si no vienen en la respuesta
-        this.selected = {
-          ...updated,
-          messages: updated.messages || this.selected.messages,
-          orders: updated.orders || this.selected.orders
-        }
+        // Forzar reactividad actualizando el objeto completo
+        const messages = updated.messages || this.selected.messages
+        const orders = updated.orders || this.selected.orders
+        // ⚠️ WORKAROUND: Si manualMode viene undefined, forzar a true (ya que pauseSession debería activarlo)
+        const manualMode = updated.manualMode !== undefined ? updated.manualMode : true
+        this.selected = { ...updated, manualMode, messages, orders }
+        console.log('🔴 Session después de actualizar:', this.selected)
+        console.log('🔴 manualMode después:', this.selected.manualMode)
       }
       const index = this.list.findIndex(s => s.id === sessionId)
       if (index !== -1) {
-        this.list[index] = {
-          ...updated,
-          messages: updated.messages || this.list[index].messages,
-          orders: updated.orders || this.list[index].orders
-        }
+        const messages = updated.messages || this.list[index].messages
+        const orders = updated.orders || this.list[index].orders
+        const manualMode = updated.manualMode !== undefined ? updated.manualMode : true
+        this.list[index] = { ...updated, manualMode, messages, orders }
       }
       return updated
     },
     async resumeSession(sessionId: string) {
       const updated = await sessionsApi.resume(sessionId)
+      console.log('🟢 Respuesta de resume:', updated)
+      console.log('🟢 manualMode en respuesta:', updated.manualMode)
       if (this.selected?.id === sessionId) {
-        // Preservar mensajes existentes si no vienen en la respuesta
-        this.selected = {
-          ...updated,
-          messages: updated.messages || this.selected.messages,
-          orders: updated.orders || this.selected.orders
-        }
+        // Forzar reactividad actualizando el objeto completo
+        const messages = updated.messages || this.selected.messages
+        const orders = updated.orders || this.selected.orders
+        // ⚠️ WORKAROUND: Si manualMode viene undefined, forzar a false (ya que resumeSession debería desactivarlo)
+        const manualMode = updated.manualMode !== undefined ? updated.manualMode : false
+        this.selected = { ...updated, manualMode, messages, orders }
+        console.log('🟢 Session después de actualizar:', this.selected)
+        console.log('🟢 manualMode después:', this.selected.manualMode)
       }
       const index = this.list.findIndex(s => s.id === sessionId)
       if (index !== -1) {
-        this.list[index] = {
-          ...updated,
-          messages: updated.messages || this.list[index].messages,
-          orders: updated.orders || this.list[index].orders
-        }
+        const messages = updated.messages || this.list[index].messages
+        const orders = updated.orders || this.list[index].orders
+        const manualMode = updated.manualMode !== undefined ? updated.manualMode : false
+        this.list[index] = { ...updated, manualMode, messages, orders }
       }
       return updated
     },

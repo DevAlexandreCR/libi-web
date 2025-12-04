@@ -15,7 +15,13 @@ const sessionsStore = useSessionsStore()
 const auth = useAuthStore()
 
 const sessionId = computed(() => route.params.id as string)
-const session = computed(() => sessionsStore.selected)
+const session = computed(() => {
+  const s = sessionsStore.selected
+  if (s) {
+    console.log('📊 Session computed:', { id: s.id, manualMode: s.manualMode, messagesCount: s.messages?.length })
+  }
+  return s
+})
 const messageText = ref('')
 const errorMessage = ref('')
 const messagesContainer = ref<HTMLElement | null>(null)
