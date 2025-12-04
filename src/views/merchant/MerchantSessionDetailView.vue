@@ -18,7 +18,7 @@ const sessionId = computed(() => route.params.id as string)
 const session = computed(() => {
   const s = sessionsStore.selected
   if (s) {
-    console.log('📊 Session computed:', { id: s.id, manualMode: s.manualMode, messagesCount: s.messages?.length })
+    console.log('📊 Session computed:', { id: s.id, isManualMode: s.isManualMode, messagesCount: s.messages?.length })
   }
   return s
 })
@@ -48,7 +48,7 @@ const toggleManualMode = async () => {
   if (!session.value) return
   
   try {
-    if (session.value.manualMode) {
+    if (session.value.isManualMode) {
       await sessionsStore.resumeSession(session.value.id)
     } else {
       await sessionsStore.pauseSession(session.value.id)
@@ -85,9 +85,9 @@ const sendMessage = async () => {
       </div>
       <div class="flex items-center gap-2">
         <BaseBadge
-          :variant="session.manualMode ? 'warning' : 'success'"
+          :variant="session.isManualMode ? 'warning' : 'success'"
         >
-          {{ session.manualMode ? t('sessions.manualMode') : t('sessions.autoMode') }}
+          {{ session.isManualMode ? t('sessions.manualMode') : t('sessions.autoMode') }}
         </BaseBadge>
         <BaseBadge
           :variant="
@@ -114,19 +114,19 @@ const sendMessage = async () => {
           <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
             <div class="flex items-center gap-2">
               <FaIcon 
-                :icon="session.manualMode ? 'user' : 'robot'" 
+                :icon="session.isManualMode ? 'user' : 'robot'" 
                 class="text-slate-600 dark:text-slate-400"
               />
               <span class="text-sm text-slate-700 dark:text-slate-300">
-                {{ session.manualMode ? t('sessions.respondingManually') : t('sessions.botResponding') }}
+                {{ session.isManualMode ? t('sessions.respondingManually') : t('sessions.botResponding') }}
               </span>
             </div>
             <BaseButton
-              :variant="session.manualMode ? 'secondary' : 'primary'"
+              :variant="session.isManualMode ? 'secondary' : 'primary'"
               size="sm"
               @click="toggleManualMode"
             >
-              {{ session.manualMode ? t('sessions.releaseChat') : t('sessions.takeControl') }}
+              {{ session.isManualMode ? t('sessions.releaseChat') : t('sessions.takeControl') }}
             </BaseButton>
           </div>
 
@@ -159,7 +159,7 @@ const sendMessage = async () => {
           </div>
 
           <!-- Caja de texto para envío -->
-          <div v-if="session.manualMode" class="pt-3 border-t border-border dark:border-slate-700">
+          <div v-if="session.isManualMode" class="pt-3 border-t border-border dark:border-slate-700">
             <form @submit.prevent="sendMessage" class="flex gap-2">
               <BaseInput
                 v-model="messageText"
