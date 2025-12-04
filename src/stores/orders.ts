@@ -111,7 +111,7 @@ export const useOrdersStore = defineStore('orders', {
         )
       }
 
-      const base = (http.defaults.baseURL || window.location.origin).replace(/\/$/, '')
+      const base = http.defaults.baseURL
       const url = new URL(`${base}/merchants/${merchantId}/orders/stream`)
       if (auth.token) {
         url.searchParams.set('token', auth.token)
