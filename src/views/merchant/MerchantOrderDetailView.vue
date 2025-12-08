@@ -9,6 +9,7 @@ import BaseModal from '@/components/base/BaseModal.vue'
 import { useOrdersStore } from '@/stores/orders'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import { apiBaseUrl } from '@/services/api/http'
 import type { OrderStatus } from '@/types'
 
 const { t } = useI18n()
@@ -37,7 +38,7 @@ const loadProofImage = async () => {
   }
   
   try {
-    const fullUrl = `${import.meta.env.VITE_API_BASE_URL}/${url}`
+    const fullUrl = `${apiBaseUrl}/${url}`
     const response = await fetch(fullUrl, {
       headers: {
         Authorization: `Bearer ${auth.token}`

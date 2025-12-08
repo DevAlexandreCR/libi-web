@@ -284,6 +284,7 @@ const es = {
     COLLECTING_ITEMS: 'Recolectando ítems',
     REVIEWING: 'En revisión',
     CONFIRMED: 'Confirmada',
+    SUPPORT: 'Soporte',
     EXPIRED: 'Expirada'
   }
 }

@@ -69,8 +69,10 @@ export const useSessionsStore = defineStore('sessions', {
       }
       const index = this.list.findIndex(s => s.id === sessionId)
       if (index !== -1) {
-        const messages = updated.messages || this.list[index].messages
-        const orders = updated.orders || this.list[index].orders
+        const current = this.list[index]
+        if (!current) return updated
+        const messages = updated.messages || current.messages
+        const orders = updated.orders || current.orders
         const isManualMode = updated.isManualMode !== undefined ? updated.isManualMode : true
         this.list[index] = { ...updated, isManualMode, messages, orders }
       }
@@ -92,8 +94,10 @@ export const useSessionsStore = defineStore('sessions', {
       }
       const index = this.list.findIndex(s => s.id === sessionId)
       if (index !== -1) {
-        const messages = updated.messages || this.list[index].messages
-        const orders = updated.orders || this.list[index].orders
+        const current = this.list[index]
+        if (!current) return updated
+        const messages = updated.messages || current.messages
+        const orders = updated.orders || current.orders
         const isManualMode = updated.isManualMode !== undefined ? updated.isManualMode : false
         this.list[index] = { ...updated, isManualMode, messages, orders }
       }

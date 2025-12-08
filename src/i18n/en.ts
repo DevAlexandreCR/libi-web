@@ -283,6 +283,7 @@ const en = {
     COLLECTING_ITEMS: 'Collecting items',
     REVIEWING: 'Reviewing',
     CONFIRMED: 'Confirmed',
+    SUPPORT: 'Support',
     EXPIRED: 'Expired'
   }
 }

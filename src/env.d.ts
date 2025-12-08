@@ -1,5 +1,6 @@
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string
+  readonly VITE_API_PREFIX?: string
   readonly VITE_WS_URL?: string
   readonly VITE_DEFAULT_LOCALE?: string
   readonly VITE_FACEBOOK_APP_ID?: string

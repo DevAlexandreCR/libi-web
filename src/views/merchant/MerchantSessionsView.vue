@@ -15,7 +15,7 @@ const { t } = useI18n()
 const router = useRouter()
 const sessionsStore = useSessionsStore()
 const auth = useAuthStore()
-const activeSessionStatuses: SessionStatus[] = ['NEW', 'COLLECTING_ITEMS', 'REVIEWING']
+const activeSessionStatuses: SessionStatus[] = ['NEW', 'COLLECTING_ITEMS', 'REVIEWING', 'SUPPORT']
 
 const maskPhone = (phone: string) => phone.slice(0, -4).replace(/[0-9]/g, '*') + phone.slice(-4)
 const activeSessionsByStatus = computed(() => {
@@ -91,12 +91,13 @@ const openSession = (id: string) => {
             <div class="flex items-center gap-2">
               <span
                 class="h-2.5 w-2.5 rounded-full"
-                :class="{
-                  'bg-emerald-300 shadow-[0_0_0_4px_rgba(74,222,128,0.18)]': group.status === 'NEW',
-                  'bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,0.18)]': group.status === 'COLLECTING_ITEMS',
-                  'bg-amber-300 shadow-[0_0_0_4px_rgba(251,191,36,0.18)]': group.status === 'REVIEWING'
-                }"
-              />
+                  :class="{
+                    'bg-emerald-300 shadow-[0_0_0_4px_rgba(74,222,128,0.18)]': group.status === 'NEW',
+                    'bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,0.18)]': group.status === 'COLLECTING_ITEMS',
+                  'bg-amber-300 shadow-[0_0_0_4px_rgba(251,191,36,0.18)]': group.status === 'REVIEWING',
+                  'bg-fuchsia-300 shadow-[0_0_0_4px_rgba(244,114,182,0.18)]': group.status === 'SUPPORT'
+                  }"
+                />
               <p class="font-semibold text-sm">{{ t(`statuses.${group.status}`) }}</p>
             </div>
             <span class="text-xs text-white/70 px-2 py-1 rounded-full bg-white/5 border border-white/10">
@@ -132,7 +133,7 @@ const openSession = (id: string) => {
                   v-if="session.orders?.length"
                   class="px-2 py-1 rounded-full bg-white/10 border border-white/10"
                 >
-                  {{ t('sessions.linkedOrder') }}: {{ session.orders[0].id }}
+                  {{ t('sessions.linkedOrder') }}: {{ session.orders?.[0]?.id }}
                 </span>
               </div>
               <div class="flex items-center justify-between text-xs text-white/60">

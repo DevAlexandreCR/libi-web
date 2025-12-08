@@ -12,6 +12,7 @@ export type SessionStatus =
   | 'COLLECTING_ITEMS'
   | 'REVIEWING'
   | 'CONFIRMED'
+  | 'SUPPORT'
   | 'CANCELLED'
   | 'EXPIRED'
 export type DeliveryType = 'delivery' | 'pickup'
