@@ -158,6 +158,17 @@ const es = {
       status: 'Estado',
       dateRange: 'Rango de fechas',
       search: 'Teléfono o ID de pedido'
+    },
+    liveBoard: {
+      pulse: 'Monitor en vivo',
+      title: 'Pedidos activos',
+      subtitle: 'Solo los que requieren intervención: pendientes, preparando, listos o en entrega.',
+      activeCount: 'Activos: {count}',
+      newCount: 'Nuevos: {count}',
+      refresh: 'Refrescar',
+      emptyStatus: 'Sin pedidos en esta columna',
+      newLabel: 'Nuevo',
+      open: 'Abrir pedido'
     }
   },
   paymentAccounts: {
@@ -206,7 +217,16 @@ const es = {
     send: 'Enviar',
     noMessages: 'Aún no hay mensajes',
     errorTogglingMode: 'Error al cambiar modo. Intenta de nuevo.',
-    errorSendingMessage: 'Error al enviar mensaje. Intenta de nuevo.'
+    errorSendingMessage: 'Error al enviar mensaje. Intenta de nuevo.',
+    liveBoard: {
+      pulse: 'Sesiones en curso',
+      title: 'Sesiones activas',
+      subtitle: 'Chats que aún requieren atención (nuevas, armando pedido o en revisión).',
+      activeCount: 'Activas: {count}',
+      refresh: 'Refrescar',
+      emptyStatus: 'Sin sesiones aquí',
+      open: 'Abrir sesión'
+    }
   },
   menu: {
     title: 'Menú',

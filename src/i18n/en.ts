@@ -158,6 +158,17 @@ const en = {
       status: 'Status',
       dateRange: 'Date range',
       search: 'Phone or order ID'
+    },
+    liveBoard: {
+      pulse: 'Live feed',
+      title: 'Active orders',
+      subtitle: 'Only what needs attention: pending, in prep, ready or delivering.',
+      activeCount: 'Active: {count}',
+      newCount: 'New: {count}',
+      refresh: 'Refresh',
+      emptyStatus: 'No orders in this column',
+      newLabel: 'New',
+      open: 'Open order'
     }
   },
   paymentAccounts: {
@@ -205,7 +216,16 @@ const en = {
     send: 'Send',
     noMessages: 'No messages yet',
     errorTogglingMode: 'Error changing mode. Please try again.',
-    errorSendingMessage: 'Error sending message. Please try again.'
+    errorSendingMessage: 'Error sending message. Please try again.',
+    liveBoard: {
+      pulse: 'Live inbox',
+      title: 'Active sessions',
+      subtitle: 'Chats still needing attention (new, collecting items, reviewing).',
+      activeCount: 'Active: {count}',
+      refresh: 'Refresh',
+      emptyStatus: 'No sessions here',
+      open: 'Open session'
+    }
   },
   menu: {
     title: 'Menu',
