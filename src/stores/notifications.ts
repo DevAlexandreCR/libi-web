@@ -8,6 +8,10 @@ export interface Toast {
   message: string
   type: ToastType
   durationMs?: number
+  // Navigation metadata
+  orderId?: string
+  sessionId?: string
+  route?: string
 }
 
 export const useNotificationStore = defineStore('notifications', {

@@ -87,7 +87,8 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
               type: 'order',
               title: '🔔 Nuevo Pedido',
               message: `Pedido #${payload.id} - $${Number(payload.estimatedTotal).toFixed(2)}`,
-              durationMs: 10000
+              durationMs: 10000,
+              orderId: payload.id
             })
             // Reproducir sonido
             notificationSoundService.play('order_created')
@@ -97,7 +98,8 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
               type: 'success',
               title: '✅ Pago Verificado',
               message: `Pedido #${payload.id} - Pago confirmado`,
-              durationMs: 6000
+              durationMs: 6000,
+              orderId: payload.id
             })
             notificationSoundService.play('payment_verified')
           }
@@ -134,7 +136,8 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
             type: 'order',
             title: '📸 Comprobante Recibido',
             message: `Pedido #${payload.orderId} - Comprobante de pago cargado`,
-            durationMs: 10000
+            durationMs: 10000,
+            orderId: payload.orderId
           })
           notificationSoundService.play('payment_proof_uploaded')
         } catch (error) {
@@ -179,7 +182,8 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
               type: 'info',
               title: '💬 Nueva Conversación',
               message: `Cliente: ${payload.customerPhone}`,
-              durationMs: 8000
+              durationMs: 8000,
+              sessionId: payload.id
             })
             notificationSoundService.play('session_created')
           } else if (event.type === 'session_updated') {
@@ -235,7 +239,8 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
               type: 'info',
               title: '📨 Nuevo Mensaje',
               message: `Cliente: ${session?.customerPhone || 'Desconocido'}`,
-              durationMs: 6000
+              durationMs: 6000,
+              sessionId: payload.sessionId
             })
             notificationSoundService.play('message_received')
           }

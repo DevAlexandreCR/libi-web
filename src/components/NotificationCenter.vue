@@ -2,9 +2,12 @@
 import { computed, watchEffect } from 'vue'
 import { useNotificationStore } from '@/stores/notifications'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import type { Toast } from '@/stores/notifications'
 
 const notifications = useNotificationStore()
 const { t } = useI18n()
+const router = useRouter()
 
 const toasts = computed(() => notifications.toasts)
 
@@ -35,8 +38,33 @@ const getIcon = (toast: any) => {
 }
 
 const getCardClass = (toast: any) => {
-  if (toast.type === 'order') return 'w-96 card shadow-2xl px-5 py-4 border-l-8 transform hover:scale-105 transition-transform'
-  return 'w-80 card shadow-soft px-4 py-3 border-l-4'
+  const baseClass = toast.type === 'order' 
+    ? 'w-96 card shadow-2xl px-5 py-4 border-l-8 transform hover:scale-105 transition-transform'
+    : 'w-80 card shadow-soft px-4 py-3 border-l-4'
+  
+  // Agregar cursor pointer si es clickeable
+  if (isClickable(toast)) {
+    return `${baseClass} cursor-pointer hover:shadow-lg`
+  }
+  return baseClass
+}
+
+const isClickable = (toast: Toast) => {
+  return !!(toast.orderId || toast.sessionId || toast.route)
+}
+
+const handleClick = async (toast: Toast) => {
+  if (!isClickable(toast)) return
+
+  notifications.remove(toast.id)
+
+  if (toast.route) {
+    await router.push(toast.route)
+  } else if (toast.orderId) {
+    await router.push({ name: 'merchant-order-detail', params: { id: toast.orderId } })
+  } else if (toast.sessionId) {
+    await router.push({ name: 'merchant-session-detail', params: { id: toast.sessionId } })
+  }
 }
 </script>
 
@@ -47,6 +75,7 @@ const getCardClass = (toast: any) => {
         v-for="toast in toasts"
         :key="toast.id"
         :class="[getCardClass(toast), bgMap[toast.type]]"
+        @click="handleClick(toast)"
       >
         <div class="flex items-start gap-3">
           <FaIcon
