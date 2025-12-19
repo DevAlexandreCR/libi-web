@@ -156,10 +156,12 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
           if (existingIndex !== -1) {
             // Preservar mensajes si no vienen en el payload
             const existingSession = sessionsStore.list[existingIndex]
-            sessionsStore.list[existingIndex] = {
-              ...payload,
-              messages: payload.messages || existingSession.messages || [],
-              orders: payload.orders || existingSession.orders
+            if (existingSession) {
+              sessionsStore.list[existingIndex] = {
+                ...payload,
+                messages: payload.messages || existingSession.messages || [],
+                orders: payload.orders || existingSession.orders
+              }
             }
           } else {
             sessionsStore.list = [payload, ...sessionsStore.list]
@@ -212,12 +214,14 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
           const sessionIndex = sessionsStore.list.findIndex((s) => s.id === payload.sessionId)
           if (sessionIndex !== -1) {
             const session = sessionsStore.list[sessionIndex]
-            const messages = session.messages || []
-            // Crear nuevo objeto para mantener reactividad
-            sessionsStore.list[sessionIndex] = {
-              ...session,
-              messages: [...messages, payload.message],
-              lastInteractionAt: payload.message.createdAt
+            if (session) {
+              const messages = session.messages || []
+              // Crear nuevo objeto para mantener reactividad
+              sessionsStore.list[sessionIndex] = {
+                ...session,
+                messages: [...messages, payload.message],
+                lastInteractionAt: payload.message.createdAt
+              }
             }
           }
 
