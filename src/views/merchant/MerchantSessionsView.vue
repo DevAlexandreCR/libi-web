@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
@@ -19,7 +19,8 @@ const activeSessionStatuses: SessionStatus[] = ['NEW', 'COLLECTING_ITEMS', 'REVI
 
 const maskPhone = (phone: string) => phone.slice(0, -4).replace(/[0-9]/g, '*') + phone.slice(-4)
 const activeSessionsByStatus = computed(() => {
-  const active = sessionsStore.list.filter(session => activeSessionStatuses.includes(session.status))
+  const list = Array.isArray(sessionsStore.list) ? sessionsStore.list : []
+  const active = list.filter(session => session && activeSessionStatuses.includes(session.status))
   return activeSessionStatuses.map(status => ({
     status,
     sessions: active.filter(session => session.status === status)
@@ -34,8 +35,17 @@ const fetchSessions = async () => {
   await sessionsStore.fetch(auth.merchantId)
 }
 
+// Watch merchantId to load data when it becomes available
+watch(() => auth.merchantId, (newMerchantId) => {
+  if (newMerchantId) {
+    fetchSessions()
+  }
+}, { immediate: true })
+
 onMounted(() => {
-  fetchSessions()
+  if (auth.merchantId) {
+    fetchSessions()
+  }
 })
 
 const openSession = (id: string) => {
@@ -44,7 +54,12 @@ const openSession = (id: string) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div v-if="!auth.merchantId" class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <p class="text-slate-500">{{ t('common.loading') }}</p>
+    </div>
+  </div>
+  <div v-else class="space-y-6">
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <div>
         <h1 class="text-2xl font-bold">{{ t('sessions.title') }}</h1>

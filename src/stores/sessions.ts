@@ -32,8 +32,13 @@ export const useSessionsStore = defineStore('sessions', {
         // ⚠️ WORKAROUND: Si isManualMode viene undefined, asumir false
         this.list = sessions.map(session => ({
           ...session,
-          isManualMode: session.isManualMode !== undefined ? session.isManualMode : false
+          isManualMode: session.isManualMode !== undefined ? session.isManualMode : false,
+          messages: session.messages || [],
+          orders: session.orders || []
         }))
+      } catch (error) {
+        console.error('[SessionsStore] Error fetching sessions:', error)
+        this.list = []
       } finally {
         this.loadingList = false
       }

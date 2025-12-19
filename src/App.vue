@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onErrorCaptured } from 'vue'
 import { RouterView } from 'vue-router'
 import NotificationCenter from './components/NotificationCenter.vue'
 import { useThemeStore } from '@/stores/theme'
@@ -8,6 +8,15 @@ const theme = useThemeStore()
 
 onMounted(() => {
   theme.init()
+})
+
+// Capturar errores de renderizado de componentes hijos
+onErrorCaptured((err, instance, info) => {
+  console.error('[App] Error captured:', err)
+  console.error('[App] Component:', instance)
+  console.error('[App] Error info:', info)
+  // Retornar false previene que el error se propague más
+  return false
 })
 </script>
 

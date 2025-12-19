@@ -148,17 +148,27 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
           const payload = JSON.parse(event.data) as Session
           const sessionsStore = useSessionsStore()
 
-          // Actualizar o agregar la sesión en la lista
+          // Actualizar o agregar la sesión en la lista de forma reactiva
           const existingIndex = sessionsStore.list.findIndex((s) => s.id === payload.id)
           if (existingIndex !== -1) {
-            sessionsStore.list[existingIndex] = payload
+            // Preservar mensajes si no vienen en el payload
+            const existingSession = sessionsStore.list[existingIndex]
+            sessionsStore.list[existingIndex] = {
+              ...payload,
+              messages: payload.messages || existingSession.messages || [],
+              orders: payload.orders || existingSession.orders
+            }
           } else {
             sessionsStore.list = [payload, ...sessionsStore.list]
           }
 
           // Actualizar sesión seleccionada si corresponde
           if (sessionsStore.selected?.id === payload.id) {
-            sessionsStore.selected = payload
+            sessionsStore.selected = {
+              ...payload,
+              messages: payload.messages || sessionsStore.selected.messages || [],
+              orders: payload.orders || sessionsStore.selected.orders
+            }
           }
 
           // Notificaciones según el tipo de evento
@@ -194,21 +204,32 @@ export const useLiveUpdatesStore = defineStore('liveUpdates', {
           }
           const sessionsStore = useSessionsStore()
 
-          // Actualizar la sesión con el nuevo mensaje
-          const session = sessionsStore.list.find((s) => s.id === payload.sessionId)
-          if (session && session.messages) {
-            session.messages.push(payload.message)
-            session.lastInteractionAt = payload.message.createdAt
+          // Actualizar la sesión en la lista de forma reactiva
+          const sessionIndex = sessionsStore.list.findIndex((s) => s.id === payload.sessionId)
+          if (sessionIndex !== -1) {
+            const session = sessionsStore.list[sessionIndex]
+            const messages = session.messages || []
+            // Crear nuevo objeto para mantener reactividad
+            sessionsStore.list[sessionIndex] = {
+              ...session,
+              messages: [...messages, payload.message],
+              lastInteractionAt: payload.message.createdAt
+            }
           }
 
           // Actualizar sesión seleccionada si corresponde
-          if (sessionsStore.selected?.id === payload.sessionId && sessionsStore.selected.messages) {
-            sessionsStore.selected.messages.push(payload.message)
-            sessionsStore.selected.lastInteractionAt = payload.message.createdAt
+          if (sessionsStore.selected?.id === payload.sessionId) {
+            const currentMessages = sessionsStore.selected.messages || []
+            sessionsStore.selected = {
+              ...sessionsStore.selected,
+              messages: [...currentMessages, payload.message],
+              lastInteractionAt: payload.message.createdAt
+            }
           }
 
           // Notificación solo para mensajes de usuario
           if (payload.message.role === 'user') {
+            const session = sessionsStore.list.find((s) => s.id === payload.sessionId)
             useNotificationStore().push({
               id: crypto.randomUUID(),
               type: 'info',

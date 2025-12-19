@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
@@ -22,7 +22,8 @@ const activeOrderStatuses: OrderStatus[] = ['PENDING', 'IN_PREPARATION', 'READY'
 
 const maskPhone = (phone: string) => phone.slice(0, -4).replace(/[0-9]/g, '*') + phone.slice(-4)
 const activeOrdersByStatus = computed(() => {
-  const active = ordersStore.list.filter(order => activeOrderStatuses.includes(order.status))
+  const list = Array.isArray(ordersStore.list) ? ordersStore.list : []
+  const active = list.filter(order => order && activeOrderStatuses.includes(order.status))
   return activeOrderStatuses.map(status => ({
     status,
     orders: active.filter(order => order.status === status)
@@ -40,8 +41,17 @@ const fetchOrders = async () => {
   await ordersStore.fetch(auth.merchantId)
 }
 
+// Watch merchantId to load data when it becomes available
+watch(() => auth.merchantId, (newMerchantId) => {
+  if (newMerchantId) {
+    fetchOrders()
+  }
+}, { immediate: true })
+
 onMounted(() => {
-  fetchOrders()
+  if (auth.merchantId) {
+    fetchOrders()
+  }
 })
 
 const statusVariant = (status: string) => {
@@ -68,7 +78,12 @@ const openOrder = (id: string) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div v-if="!auth.merchantId" class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <p class="text-slate-500">{{ t('common.loading') }}</p>
+    </div>
+  </div>
+  <div v-else class="space-y-6">
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <div>
         <h1 class="text-2xl font-bold">{{ t('orders.title') }}</h1>
