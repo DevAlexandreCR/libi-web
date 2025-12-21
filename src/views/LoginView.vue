@@ -18,11 +18,6 @@ const form = reactive({
   remember: false
 })
 
-const demoForm = reactive({
-  email: '',
-  phone: ''
-})
-
 const handleLogin = async () => {
   await auth.login({ email: form.email, password: form.password })
   if (auth.role === 'SUPER_ADMIN') {
@@ -63,17 +58,6 @@ const handleLogin = async () => {
             {{ t('auth.submit') }}
           </BaseButton>
         </form>
-        <div class="mt-6 border-t border-border pt-4">
-          <h3 class="font-semibold mb-2">{{ t('auth.demoTitle') }}</h3>
-          <p class="text-sm text-slate-600 mb-3">{{ t('auth.demoSubtitle') }}</p>
-          <div class="space-y-3">
-            <BaseInput v-model="demoForm.email" :label="t('common.email')" type="email" placeholder="you@restaurant.com" />
-            <BaseInput v-model="demoForm.phone" :label="t('common.phone')" placeholder="+34 600 000 000" />
-            <BaseButton variant="secondary" block icon="arrow-right" type="button" @click="router.push({ name: 'demo' })">
-              {{ t('auth.request') }}
-            </BaseButton>
-          </div>
-        </div>
       </BaseCard>
     </div>
   </div>
