@@ -141,11 +141,12 @@ const copyToAll = (day: DayOfWeek) => {
 
             <div v-if="businessHours[day.value].isEnabled" class="flex items-center gap-3 flex-1">
               <div class="flex items-center gap-2">
-                <label class="text-sm text-slate-600">{{ t('whatsapp.openTime') }}:</label>
+                <label :for="`open-${day.value}`" class="text-sm text-slate-600">{{ t('whatsapp.openTime') }}:</label>
                 <input
+                  :id="`open-${day.value}`"
                   v-model="businessHours[day.value].openTime"
                   type="time"
-                  class="px-3 py-1.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  class="px-3 py-1.5 border border-border rounded-lg bg-white text-slate-900 placeholder:text-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-300 dark:border-slate-700"
                   @change="updateCrossesMidnight(day.value)"
                 />
               </div>
@@ -153,11 +154,12 @@ const copyToAll = (day: DayOfWeek) => {
               <span class="text-slate-400">—</span>
 
               <div class="flex items-center gap-2">
-                <label class="text-sm text-slate-600">{{ t('whatsapp.closeTime') }}:</label>
+                <label :for="`close-${day.value}`" class="text-sm text-slate-600">{{ t('whatsapp.closeTime') }}:</label>
                 <input
+                  :id="`close-${day.value}`"
                   v-model="businessHours[day.value].closeTime"
                   type="time"
-                  class="px-3 py-1.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  class="px-3 py-1.5 border border-border rounded-lg bg-white text-slate-900 placeholder:text-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-300 dark:border-slate-700"
                   @change="updateCrossesMidnight(day.value)"
                 />
               </div>
