@@ -274,6 +274,7 @@ const es = {
     updateError: 'Algo falló, intenta nuevamente.'
   },
   settings: {
+    manageBusinessHours: 'Configurar horarios de atención',
     notifications: {
       title: 'Notificaciones de Pedidos',
       description: 'Configura cómo quieres recibir alertas de nuevos pedidos y pagos.',

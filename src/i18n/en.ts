@@ -272,6 +272,7 @@ const en = {
     updateError: 'Something went wrong, please try again.'
   },
   settings: {
+    manageBusinessHours: 'Manage business hours',
     notifications: {
       title: 'Order Notifications',
       description: 'Configure how you want to receive alerts for new orders and payments.',

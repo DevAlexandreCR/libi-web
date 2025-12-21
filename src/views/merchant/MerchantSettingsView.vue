@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
@@ -16,6 +17,7 @@ import type { PaymentAccount, PaymentAccountType } from '@/types'
 import type { PaymentAccountInput } from '@/services/api/paymentAccountsApi'
 
 const { t } = useI18n()
+const router = useRouter()
 const auth = useAuthStore()
 const paymentAccountsStore = usePaymentAccountsStore()
 const merchantStore = useMerchantStore()
@@ -155,6 +157,18 @@ onMounted(() => {
       </div>
       <BaseButton icon="plus" @click="openCreate">{{ t('paymentAccounts.add') }}</BaseButton>
     </div>
+
+    <BaseCard>
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h3 class="text-lg font-semibold flex items-center gap-2">🕐 {{ t('whatsapp.businessHours') }}</h3>
+          <p class="text-sm text-slate-600">{{ t('whatsapp.businessHoursDescriptionMerchant') }}</p>
+        </div>
+        <BaseButton variant="secondary" icon="clock" @click="router.push({ name: 'merchant-business-hours' })">
+          {{ t('settings.manageBusinessHours') }}
+        </BaseButton>
+      </div>
+    </BaseCard>
 
     <BaseCard>
       <div class="flex items-start justify-between gap-3 mb-4">

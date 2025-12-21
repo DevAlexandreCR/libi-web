@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import type { WhatsAppLine } from '@/types'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -12,7 +11,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const router = useRouter()
 const whatsappLinesStore = useWhatsappLinesStore()
 const toggling = ref(false)
 
@@ -23,10 +21,6 @@ const toggleBot = async () => {
   } finally {
     toggling.value = false
   }
-}
-
-const openSettings = () => {
-  router.push({ name: 'merchant-business-hours' })
 }
 </script>
 
@@ -61,13 +55,6 @@ const openSettings = () => {
           @click="toggleBot"
         >
           {{ line.botEnabled ? t('whatsapp.disableBot') : t('whatsapp.enableBot') }}
-        </BaseButton>
-        <BaseButton
-          variant="secondary"
-          size="sm"
-          @click="openSettings"
-        >
-          ⚙️ {{ t('common.settings') }}
         </BaseButton>
       </div>
     </div>
