@@ -7,7 +7,10 @@ import { pinia } from '@/stores'
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior() {
+  scrollBehavior(to) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
     return { top: 0 }
   },
   routes: [
@@ -28,7 +31,7 @@ const router = createRouter({
         {
           path: 'demo',
           name: 'demo',
-          component: () => import('@/views/LoginView.vue')
+          component: () => import('@/views/LandingView.vue')
         }
       ]
     },
@@ -67,6 +70,11 @@ const router = createRouter({
           path: 'whatsapp-lines/:id',
           name: 'admin-whatsapp-line-detail',
           component: () => import('@/views/admin/AdminWhatsAppLineDetailView.vue')
+        },
+        {
+          path: 'demo-requests',
+          name: 'admin-demo-requests',
+          component: () => import('@/views/admin/AdminDemoRequestsView.vue')
         }
       ]
     },

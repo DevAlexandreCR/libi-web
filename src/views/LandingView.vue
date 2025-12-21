@@ -1,19 +1,98 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
 import ChatMock from '@/components/landing/ChatMock.vue'
+import { useNotificationStore } from '@/stores/notifications'
+import { demoRequestsApi } from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
 const { t, tm } = useI18n()
+const notifications = useNotificationStore()
 
 const steps = computed(() => tm('landing.steps') as { title: string; description: string }[])
 const features = computed(() => tm('landing.features') as { title: string; description: string }[])
-const plans = computed(() => tm('landing.plans') as { name: string; price: string; description: string }[])
 const faqs = computed(() => tm('landing.faq') as { q: string; a: string }[])
 const merchantBullets = computed(() => tm('landing.merchantsBullets') as string[])
+
+const demoFormSection = ref<HTMLElement | null>(null)
+const demoForm = reactive({
+  name: '',
+  email: '',
+  phone: '',
+  company: '',
+  notes: '',
+  source: 'landing'
+})
+const formErrors = reactive<Record<string, string>>({})
+const submitting = ref(false)
+const submitSuccess = ref(false)
+
+const scrollToDemoForm = async () => {
+  await nextTick()
+  demoFormSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+const goToDemo = () => {
+  if (route.name === 'landing' || route.name === 'demo' || route.hash === '#demo') {
+    scrollToDemoForm()
+  } else {
+    router.push({ name: 'landing', hash: '#demo' })
+  }
+}
+
+const validateDemoForm = () => {
+  formErrors.name = demoForm.name ? '' : t('landing.demoForm.errors.name')
+  formErrors.email =
+    demoForm.email && /\S+@\S+\.\S+/.test(demoForm.email) ? '' : t('landing.demoForm.errors.email')
+  formErrors.phone = demoForm.phone ? '' : t('landing.demoForm.errors.phone')
+  return !formErrors.name && !formErrors.email && !formErrors.phone
+}
+
+const submitDemoRequest = async () => {
+  submitSuccess.value = false
+  if (!validateDemoForm()) return
+  submitting.value = true
+  try {
+    await demoRequestsApi.create({
+      name: demoForm.name,
+      email: demoForm.email,
+      phone: demoForm.phone,
+      company: demoForm.company,
+      message: demoForm.notes,
+      source: demoForm.source
+    })
+    notifications.push({
+      id: crypto.randomUUID(),
+      type: 'success',
+      title: t('common.success'),
+      message: 'landing.demoForm.success'
+    })
+    submitSuccess.value = true
+    Object.assign(demoForm, { name: '', email: '', phone: '', company: '', notes: '', source: 'landing' })
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(() => {
+  if (route.name === 'demo' || route.hash === '#demo') {
+    scrollToDemoForm()
+  }
+})
+
+watch(
+  () => route.name,
+  (name) => {
+    if (name === 'demo' || route.hash === '#demo') {
+      scrollToDemoForm()
+    }
+  }
+)
 </script>
 
 <template>
@@ -33,7 +112,7 @@ const merchantBullets = computed(() => tm('landing.merchantsBullets') as string[
           {{ t('landing.heroSubtitle') }}
         </p>
         <div class="flex flex-wrap gap-3">
-          <BaseButton size="lg" @click="router.push({ name: 'demo' })">
+          <BaseButton size="lg" @click="goToDemo">
             {{ t('landing.primaryCta') }}
           </BaseButton>
           <BaseButton variant="secondary" size="lg" @click="router.push({ name: 'login' })">
@@ -86,7 +165,7 @@ const merchantBullets = computed(() => tm('landing.merchantsBullets') as string[
           </p>
           <h2 class="text-3xl font-bold">{{ t('landing.featuresTitle') }}</h2>
         </div>
-        <BaseButton variant="secondary" icon="arrow-right" @click="router.push({ name: 'demo' })">
+        <BaseButton variant="secondary" icon="arrow-right" @click="goToDemo">
           {{ t('common.requestDemo') }}
         </BaseButton>
       </div>
@@ -121,7 +200,7 @@ const merchantBullets = computed(() => tm('landing.merchantsBullets') as string[
           <span class="font-medium">Meta Embedded Signup</span>
         </div>
         <div class="mt-4">
-          <BaseButton icon="arrow-right" @click="router.push({ name: 'demo' })">
+          <BaseButton icon="arrow-right" @click="goToDemo">
             {{ t('common.requestDemo') }}
           </BaseButton>
         </div>
@@ -129,24 +208,85 @@ const merchantBullets = computed(() => tm('landing.merchantsBullets') as string[
     </div>
   </section>
 
-  <section class="section">
-    <div class="text-center mb-8">
-      <p class="text-sm uppercase tracking-wide text-primary-600 font-semibold mb-2 dark:text-primary-100">
-        {{ t('landing.pricingTitle') }}
-      </p>
-      <h2 class="text-3xl font-bold mb-2">{{ t('landing.pricingSubtitle') }}</h2>
-      <p class="text-slate-600 dark:text-slate-300">{{ t('landing.heroSubtitle') }}</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-4">
-      <BaseCard
-        v-for="plan in plans"
-        :key="plan.name"
-        class="h-full flex flex-col hover:-translate-y-1 transition"
-      >
-        <h3 class="text-xl font-semibold mb-1">{{ plan.name }}</h3>
-        <p class="text-3xl font-bold mb-2">{{ plan.price }}</p>
-        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">{{ plan.description }}</p>
-        <BaseButton class="mt-auto" variant="secondary">{{ t('common.requestDemo') }}</BaseButton>
+  <section ref="demoFormSection" id="demo" class="section">
+    <div class="grid lg:grid-cols-2 gap-10 items-start">
+      <div class="space-y-4">
+        <p class="text-sm uppercase tracking-wide text-primary-600 font-semibold mb-2 dark:text-primary-100">
+          {{ t('landing.demoForm.title') }}
+        </p>
+        <h2 class="text-3xl font-bold">{{ t('landing.heroTitle') }}</h2>
+        <p class="text-slate-600 dark:text-slate-300">{{ t('landing.demoForm.subtitle') }}</p>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <BaseCard class="bg-gradient-to-br from-primary-50 to-white dark:from-primary-950/40 dark:to-slate-900">
+            <h3 class="font-semibold mb-1 flex items-center gap-2">
+              <FaIcon icon="bolt" class="text-primary-500" />
+              {{ t('landing.stepsTitle') }}
+            </h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">{{ t('landing.heroSubtitle') }}</p>
+          </BaseCard>
+          <BaseCard class="bg-gradient-to-br from-green-50 to-white dark:from-green-900/30 dark:to-slate-900">
+            <h3 class="font-semibold mb-1 flex items-center gap-2">
+              <FaIcon icon="clock" class="text-green-500" />
+              {{ t('landing.merchantsTitle') }}
+            </h3>
+            <p class="text-sm text-slate-600 dark:text-slate-300">
+              {{ merchantBullets[0] }}
+            </p>
+          </BaseCard>
+        </div>
+      </div>
+      <BaseCard class="p-6 shadow-card">
+        <form class="space-y-4" @submit.prevent="submitDemoRequest">
+          <div class="grid sm:grid-cols-2 gap-3">
+            <BaseInput
+              v-model="demoForm.name"
+              :label="t('landing.demoForm.nameLabel')"
+              :placeholder="t('common.name')"
+              :error="formErrors.name"
+              icon="user"
+            />
+            <BaseInput
+              v-model="demoForm.email"
+              type="email"
+              :label="t('landing.demoForm.emailLabel')"
+              placeholder="you@restaurant.com"
+              :error="formErrors.email"
+              icon="envelope"
+            />
+            <BaseInput
+              v-model="demoForm.phone"
+              :label="t('landing.demoForm.phoneLabel')"
+              placeholder="+34 600 000 000"
+              :error="formErrors.phone"
+              icon="phone"
+            />
+            <BaseInput
+              v-model="demoForm.company"
+              :label="t('landing.demoForm.companyLabel')"
+              placeholder="Pizza Studio"
+              icon="store"
+            />
+          </div>
+          <label class="block space-y-1.5">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
+              {{ t('landing.demoForm.notesLabel') }}
+            </span>
+            <textarea
+              v-model="demoForm.notes"
+              rows="3"
+              class="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:placeholder-slate-500 dark:focus:border-primary-300 dark:focus:ring-primary-900/40"
+              :placeholder="t('landing.demoForm.notesPlaceholder')"
+            />
+          </label>
+          <div class="space-y-2">
+            <BaseButton type="submit" block icon="arrow-right" :loading="submitting">
+              {{ t('landing.demoForm.submit') }}
+            </BaseButton>
+            <p v-if="submitSuccess" class="text-sm text-green-600 dark:text-green-300">
+              {{ t('landing.demoForm.success') }}
+            </p>
+          </div>
+        </form>
       </BaseCard>
     </div>
   </section>

@@ -18,6 +18,7 @@ export type SessionStatus =
 export type DeliveryType = 'delivery' | 'pickup'
 export type MessageRole = 'user' | 'assistant' | 'system'
 export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+export type DemoRequestStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISCARDED'
 
 export interface User {
   id: string
@@ -129,6 +130,19 @@ export interface PaymentAccount {
   bankName?: string | null
   description?: string | null
   isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DemoRequest {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  company?: string | null
+  message?: string | null
+  status: DemoRequestStatus
+  source?: string | null
   createdAt: string
   updatedAt: string
 }

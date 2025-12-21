@@ -51,7 +51,7 @@ const toggleTheme = () => theme.toggle()
               {{ t('common.signIn') }}
             </BaseButton>
           </RouterLink>
-          <RouterLink to="/demo">
+          <RouterLink :to="{ name: 'landing', hash: '#demo' }">
             <BaseButton>
               {{ t('common.requestDemo') }}
             </BaseButton>

@@ -45,7 +45,7 @@ const handleLogin = async () => {
         <h1 class="text-4xl font-bold">{{ t('auth.subtitle') }}</h1>
         <p class="text-slate-600">{{ t('landing.heroSubtitle') }}</p>
         <div class="flex gap-3">
-          <BaseButton variant="secondary" icon="arrow-right" @click="router.push({ name: 'demo' })">
+          <BaseButton variant="secondary" icon="arrow-right" @click="router.push({ name: 'landing', hash: '#demo' })">
             {{ t('auth.demoTitle') }}
           </BaseButton>
         </div>
@@ -69,7 +69,7 @@ const handleLogin = async () => {
           <div class="space-y-3">
             <BaseInput v-model="demoForm.email" :label="t('common.email')" type="email" placeholder="you@restaurant.com" />
             <BaseInput v-model="demoForm.phone" :label="t('common.phone')" placeholder="+34 600 000 000" />
-            <BaseButton variant="secondary" block icon="arrow-right">
+            <BaseButton variant="secondary" block icon="arrow-right" type="button" @click="router.push({ name: 'demo' })">
               {{ t('auth.request') }}
             </BaseButton>
           </div>

@@ -39,6 +39,7 @@ const en = {
     overview: 'Overview',
     merchants: 'Merchants',
     whatsappLines: 'WhatsApp lines',
+    demoRequests: 'Demo requests',
     settings: 'Settings',
     orders: 'Orders',
     sessions: 'Sessions',
@@ -76,13 +77,23 @@ const en = {
       'AI starts answering in minutes with your menu and policies.',
       'Monitor sessions, orders, and menu availability from one place.'
     ],
-    pricingTitle: 'Pricing',
-    pricingSubtitle: 'Simple plans that grow with you.',
-    plans: [
-      { name: 'Starter', price: '$49', description: 'Single store, AI chat, live dashboard.' },
-      { name: 'Growth', price: '$99', description: 'Multiple stores, priority AI, menu import.' },
-      { name: 'Scale', price: 'Let’s talk', description: 'Custom onboarding and SLAs.' }
-    ],
+    demoForm: {
+      title: 'Request a demo',
+      subtitle: 'Share your details and we will schedule a quick call to get you live.',
+      nameLabel: 'Full name',
+      emailLabel: 'Email',
+      phoneLabel: 'Phone',
+      companyLabel: 'Restaurant or brand',
+      notesLabel: 'What do you want to automate?',
+      notesPlaceholder: 'Hours, number of stores, current tools...',
+      submit: 'Send request',
+      success: 'We got your info. We will reach out shortly.',
+      errors: {
+        name: 'Add your name',
+        email: 'Use a valid email',
+        phone: 'Add a phone number'
+      }
+    },
     faqTitle: 'FAQ',
     faq: [
       { q: 'How fast can we go live?', a: 'Most merchants launch the same day after connecting WhatsApp and importing the menu.' },
@@ -113,6 +124,18 @@ const en = {
     merchantFormTitle: 'Merchant details',
     whatsappLinesTitle: 'WhatsApp lines',
     whatsappLineDetail: 'Line detail'
+  },
+  demoRequests: {
+    title: 'Demo requests',
+    subtitle: 'Leads captured from the landing to follow up.',
+    source: 'Source',
+    status: {
+      NEW: 'New',
+      CONTACTED: 'Contacted',
+      QUALIFIED: 'Qualified',
+      DISCARDED: 'Discarded'
+    },
+    updateSuccess: 'Status updated'
   },
   merchant: {
     overviewTitle: 'Merchant overview',

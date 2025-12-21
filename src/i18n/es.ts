@@ -39,6 +39,7 @@ const es = {
     overview: 'Resumen',
     merchants: 'Comercios',
     whatsappLines: 'Líneas WhatsApp',
+    demoRequests: 'Solicitudes demo',
     settings: 'Configuración',
     orders: 'Pedidos',
     sessions: 'Sesiones',
@@ -76,13 +77,23 @@ const es = {
       'La IA responde en minutos con tu menú y políticas.',
       'Monitorea sesiones, pedidos y disponibilidad desde un solo lugar.'
     ],
-    pricingTitle: 'Precios',
-    pricingSubtitle: 'Planes simples que crecen contigo.',
-    plans: [
-      { name: 'Starter', price: '$49', description: 'Una tienda, chat con IA, dashboard en vivo.' },
-      { name: 'Growth', price: '$99', description: 'Múltiples tiendas, IA prioritaria, importación de menú.' },
-      { name: 'Scale', price: 'Hablemos', description: 'Onboarding personalizado y SLA.' }
-    ],
+    demoForm: {
+      title: 'Solicita una demo',
+      subtitle: 'Deja tus datos y coordinamos una llamada breve para activar tus pedidos con IA.',
+      nameLabel: 'Nombre y apellido',
+      emailLabel: 'Correo',
+      phoneLabel: 'Teléfono',
+      companyLabel: 'Restaurante o marca',
+      notesLabel: '¿Qué necesitas automatizar?',
+      notesPlaceholder: 'Horarios, número de locales, integraciones...',
+      submit: 'Enviar solicitud',
+      success: 'Recibimos tus datos. Te contactaremos en breve.',
+      errors: {
+        name: 'Ingresa tu nombre',
+        email: 'Agrega un correo válido',
+        phone: 'Agrega un teléfono'
+      }
+    },
     faqTitle: 'Preguntas frecuentes',
     faq: [
       { q: '¿Qué tan rápido podemos salir en vivo?', a: 'La mayoría lanza el mismo día conectando WhatsApp e importando el menú.' },
@@ -113,6 +124,18 @@ const es = {
     merchantFormTitle: 'Datos del comercio',
     whatsappLinesTitle: 'Líneas de WhatsApp',
     whatsappLineDetail: 'Detalle de línea'
+  },
+  demoRequests: {
+    title: 'Solicitudes de demo',
+    subtitle: 'Leads capturados en la landing para hacer seguimiento.',
+    source: 'Origen',
+    status: {
+      NEW: 'Nuevo',
+      CONTACTED: 'Contactado',
+      QUALIFIED: 'Calificado',
+      DISCARDED: 'Descartado'
+    },
+    updateSuccess: 'Estado actualizado'
   },
   merchant: {
     overviewTitle: 'Resumen del comercio',
