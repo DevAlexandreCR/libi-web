@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import BaseCard from '@/components/base/BaseCard.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import EmbeddedSignup from '@/components/whatsapp/EmbeddedSignup.vue'
+import WhatsAppLineCard from '@/components/whatsapp/WhatsAppLineCard.vue'
 import { useWhatsappLinesStore } from '@/stores/whatsappLines'
 import { useAuthStore } from '@/stores/auth'
 import type { EmbeddedSignupPayload } from '@/services/api/whatsappLinesApi'
@@ -57,19 +58,11 @@ const handleComplete = async (payload: EmbeddedSignupPayload) => {
           <BaseBadge variant="info">{{ whatsappLinesStore.lines.length }}</BaseBadge>
         </div>
         <div class="space-y-3">
-          <div
+          <WhatsAppLineCard
             v-for="line in whatsappLinesStore.lines"
             :key="line.id"
-            class="border border-border rounded-xl p-3 flex items-center justify-between"
-          >
-            <div>
-              <p class="font-semibold">{{ line.phoneDisplayName || line.phoneNumber }}</p>
-              <p class="text-xs text-slate-500">WABA: {{ line.wabaId || '—' }}</p>
-            </div>
-            <BaseBadge :variant="line.status === 'ACTIVE' ? 'success' : line.status === 'PENDING_CONFIG' ? 'warning' : 'neutral'">
-              {{ t(`statuses.${line.status}`) }}
-            </BaseBadge>
-          </div>
+            :line="line"
+          />
           <p v-if="!whatsappLinesStore.lines.length" class="text-sm text-slate-500">
             {{ t('common.loading') }}
           </p>

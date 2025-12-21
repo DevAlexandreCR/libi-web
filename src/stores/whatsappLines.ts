@@ -57,6 +57,29 @@ export const useWhatsappLinesStore = defineStore('whatsappLines', {
       } finally {
         this.connecting = false
       }
+    },
+    async toggleBotEnabled(lineId: string, botEnabled: boolean) {
+      try {
+        const updatedLine = await whatsappLinesApi.toggleBotEnabled(lineId, botEnabled)
+        const index = this.lines.findIndex((l) => l.id === lineId)
+        if (index !== -1) {
+          this.lines[index] = { ...this.lines[index], ...updatedLine }
+        }
+        useNotificationStore().push({
+          id: crypto.randomUUID(),
+          type: 'success',
+          title: 'Success',
+          message: botEnabled ? 'Bot activado correctamente' : 'Bot desactivado correctamente'
+        })
+      } catch (error) {
+        useNotificationStore().push({
+          id: crypto.randomUUID(),
+          type: 'error',
+          title: 'Error',
+          message: 'Error al cambiar el estado del bot'
+        })
+        throw error
+      }
     }
   }
 })

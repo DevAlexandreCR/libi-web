@@ -17,6 +17,7 @@ export type SessionStatus =
   | 'EXPIRED'
 export type DeliveryType = 'delivery' | 'pickup'
 export type MessageRole = 'user' | 'assistant' | 'system'
+export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
 
 export interface User {
   id: string
@@ -49,9 +50,22 @@ export interface WhatsAppLine {
   metaBusinessId?: string | null
   metaAccessToken?: string | null
   status: WhatsAppLineStatus
+  botEnabled: boolean
   createdAt: string
   updatedAt: string
   merchantName?: string
+}
+
+export interface BusinessHours {
+  id: string
+  merchantId: string
+  dayOfWeek: DayOfWeek
+  isEnabled: boolean
+  openTime: string
+  closeTime: string
+  crossesMidnight: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface MenuOption {

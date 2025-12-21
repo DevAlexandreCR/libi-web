@@ -117,6 +117,11 @@ const router = createRouter({
           component: () => import('@/views/merchant/MerchantWhatsappLinesView.vue')
         },
         {
+          path: 'business-hours',
+          name: 'merchant-business-hours',
+          component: () => import('@/views/merchant/MerchantBusinessHoursView.vue')
+        },
+        {
           path: 'settings',
           name: 'merchant-settings',
           component: () => import('@/views/merchant/MerchantSettingsView.vue')

@@ -1,4 +1,4 @@
-import type { WhatsAppLine } from '@/types'
+import type { WhatsAppLine, BusinessHours } from '@/types'
 import http from './http'
 
 export interface EmbeddedSignupPayload {
@@ -21,6 +21,14 @@ export interface WhatsappLinePayload {
   status?: WhatsAppLine['status']
 }
 
+export interface BusinessHoursInput {
+  dayOfWeek: BusinessHours['dayOfWeek']
+  isEnabled: boolean
+  openTime: string
+  closeTime: string
+  crossesMidnight: boolean
+}
+
 export const whatsappLinesApi = {
   async listByMerchant(merchantId: string): Promise<WhatsAppLine[]> {
     const { data } = await http.get(`/merchants/${merchantId}/whatsapp-lines`)
@@ -39,6 +47,10 @@ export const whatsappLinesApi = {
   },
   async update(lineId: string, payload: WhatsappLinePayload): Promise<WhatsAppLine> {
     const { data } = await http.put(`/whatsapp-lines/${lineId}`, payload)
+    return data
+  },
+  async toggleBotEnabled(lineId: string, botEnabled: boolean): Promise<WhatsAppLine> {
+    const { data } = await http.patch(`/whatsapp-lines/${lineId}/bot-enabled`, { botEnabled })
     return data
   }
 }
