@@ -7,13 +7,10 @@ import EmbeddedSignup from '@/components/whatsapp/EmbeddedSignup.vue'
 import WhatsAppLineCard from '@/components/whatsapp/WhatsAppLineCard.vue'
 import { useWhatsappLinesStore } from '@/stores/whatsappLines'
 import { useAuthStore } from '@/stores/auth'
-import type { EmbeddedSignupPayload } from '@/services/api/whatsappLinesApi'
-import { useNotificationStore } from '@/stores/notifications'
 
 const { t } = useI18n()
 const whatsappLinesStore = useWhatsappLinesStore()
 const auth = useAuthStore()
-const notifications = useNotificationStore()
 const embeddedSignupConfigId =
   import.meta.env.VITE_META_CONFIG_ID ||
   import.meta.env.VITE_FACEBOOK_APP_ID ||
@@ -23,24 +20,6 @@ const embeddedSignupConfigId =
 onMounted(() => {
   if (auth.merchantId) whatsappLinesStore.fetchByMerchant(auth.merchantId)
 })
-
-const handleComplete = async (payload: EmbeddedSignupPayload) => {
-  if (!auth.merchantId) return
-  await whatsappLinesStore.completeEmbeddedSignup(auth.merchantId, {
-    ...payload,
-    phone_display_name: payload.phone_display_name || (payload as { display_phone_number?: string }).display_phone_number
-  })
-}
-
-const handleError = (error: unknown) => {
-  console.error('Embedded signup error', error)
-  notifications.push({
-    id: crypto.randomUUID(),
-    type: 'error',
-    title: 'Error',
-    message: 'No se pudo conectar la linea de WhatsApp. Intenta nuevamente.'
-  })
-}
 </script>
 
 <template>
@@ -58,8 +37,7 @@ const handleError = (error: unknown) => {
         <p class="text-sm text-slate-600 mb-3">{{ t('whatsapp.embeddedSubtitle') }}</p>
         <EmbeddedSignup
           :config-id="embeddedSignupConfigId"
-          @complete="handleComplete"
-          @error="handleError"
+          :merchant-id="auth.merchantId"
         >
           {{ t('whatsapp.signupCta') }}
         </EmbeddedSignup>

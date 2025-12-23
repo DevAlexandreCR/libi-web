@@ -2,7 +2,7 @@ class FacebookService {
   private readonly appId: string
   private readonly appSecret: string
   private readonly graphApiVersion: string
-  private readonly redirectUri: string
+  private readonly sdkLocale: string
 
   constructor() {
     this.appId =
@@ -16,8 +16,9 @@ class FacebookService {
     this.graphApiVersion =
       import.meta.env.VITE_FACEBOOK_GRAPH_API_VERSION ||
       import.meta.env.VITE_META_FACEBOOK_GRAPH_API_VERSION ||
+      import.meta.env.VITE_META_GRAPH_API_VERSION ||
       'v23.0'
-    this.redirectUri = import.meta.env.VITE_META_REDIRECT_URI || window.location.origin
+    this.sdkLocale = import.meta.env.VITE_META_SDK_LOCALE || 'en_US'
   }
 
   loadSDK(): Promise<void> {
@@ -28,9 +29,14 @@ class FacebookService {
         return
       }
 
+      const existingScript = document.getElementById('facebook-jssdk')
+      if (existingScript) {
+        existingScript.remove()
+      }
+
       const script = document.createElement('script')
       script.id = 'facebook-jssdk'
-      script.src = 'https://connect.facebook.net/en_US/sdk.js'
+      script.src = `https://connect.facebook.net/${this.sdkLocale}/sdk.js`
       script.async = true
       script.defer = true
       script.onload = () => {
@@ -62,10 +68,6 @@ class FacebookService {
         reject(new Error('Facebook SDK not loaded'))
         return
       }
-      if (!this.redirectUri) {
-        reject(new Error('Missing redirect URI for Meta embedded signup'))
-        return
-      }
 
       ;(window as any).FB.login(
         (response: any) => {
@@ -79,7 +81,6 @@ class FacebookService {
           config_id: configId,
           response_type: 'code',
           override_default_response_type: true,
-          redirect_uri: this.redirectUri,
           extras: {
             setup: {},
             featureType: 'whatsapp_business_app_onboarding',
@@ -91,15 +92,9 @@ class FacebookService {
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    if (!this.redirectUri) {
-      throw new Error('Missing redirect URI for Meta embedded signup')
-    }
-
     const params = new URLSearchParams({
       client_id: this.appId,
       client_secret: this.appSecret,
-      redirect_uri: this.redirectUri,
-      grant_type: 'authorization_code',
       code
     })
 
