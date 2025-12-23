@@ -2,6 +2,7 @@ class FacebookService {
   private readonly appId: string
   private readonly appSecret: string
   private readonly graphApiVersion: string
+  private readonly redirectUri: string
 
   constructor() {
     this.appId =
@@ -16,6 +17,7 @@ class FacebookService {
       import.meta.env.VITE_FACEBOOK_GRAPH_API_VERSION ||
       import.meta.env.VITE_META_FACEBOOK_GRAPH_API_VERSION ||
       'v23.0'
+    this.redirectUri = import.meta.env.VITE_META_REDIRECT_URI || window.location.origin
   }
 
   loadSDK(): Promise<void> {
@@ -60,6 +62,10 @@ class FacebookService {
         reject(new Error('Facebook SDK not loaded'))
         return
       }
+      if (!this.redirectUri) {
+        reject(new Error('Missing redirect URI for Meta embedded signup'))
+        return
+      }
 
       ;(window as any).FB.login(
         (response: any) => {
@@ -73,6 +79,7 @@ class FacebookService {
           config_id: configId,
           response_type: 'code',
           override_default_response_type: true,
+          redirect_uri: this.redirectUri,
           extras: {
             setup: {},
             featureType: 'whatsapp_business_app_onboarding',
@@ -84,11 +91,19 @@ class FacebookService {
   }
 
   async exchangeCodeForToken(code: string): Promise<string> {
-    const url =
-      `https://graph.facebook.com/${this.graphApiVersion}/oauth/access_token?` +
-      `client_id=${this.appId}&` +
-      `client_secret=${this.appSecret}&` +
-      `code=${code}`
+    if (!this.redirectUri) {
+      throw new Error('Missing redirect URI for Meta embedded signup')
+    }
+
+    const params = new URLSearchParams({
+      client_id: this.appId,
+      client_secret: this.appSecret,
+      redirect_uri: this.redirectUri,
+      grant_type: 'authorization_code',
+      code
+    })
+
+    const url = `https://graph.facebook.com/${this.graphApiVersion}/oauth/access_token?${params.toString()}`
 
     const response = await fetch(url)
 
