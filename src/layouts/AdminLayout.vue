@@ -14,6 +14,7 @@ const theme = useThemeStore()
 
 const nav = computed(() => [
   { label: t('navigation.overview'), icon: 'chart-line', to: { name: 'admin-overview' } },
+  { label: t('navigation.users'), icon: 'user-plus', to: { name: 'admin-users' } },
   { label: t('navigation.merchants'), icon: 'users', to: { name: 'admin-merchants' } },
   { label: t('navigation.whatsappLines'), icon: 'phone', to: { name: 'admin-whatsapp-lines' } },
   { label: t('navigation.demoRequests'), icon: 'user', to: { name: 'admin-demo-requests' } }

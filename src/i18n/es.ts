@@ -16,6 +16,8 @@ const es = {
     view: 'Ver',
     back: 'Volver',
     name: 'Nombre',
+    role: 'Rol',
+    merchant: 'Comercio',
     search: 'Buscar',
     filters: 'Filtros',
     status: 'Estado',
@@ -37,6 +39,7 @@ const es = {
   },
   navigation: {
     overview: 'Resumen',
+    users: 'Usuarios',
     merchants: 'Comercios',
     whatsappLines: 'Líneas WhatsApp',
     demoRequests: 'Solicitudes demo',
@@ -124,6 +127,20 @@ const es = {
     merchantFormTitle: 'Datos del comercio',
     whatsappLinesTitle: 'Líneas de WhatsApp',
     whatsappLineDetail: 'Detalle de línea'
+  },
+  users: {
+    title: 'Usuarios y accesos',
+    subtitle: 'Crea credenciales para comercios o para el equipo de admin.',
+    listTitle: 'Usuarios creados',
+    createTitle: 'Crear usuario',
+    merchantPlaceholder: 'Selecciona un comercio',
+    merchantRequired: 'Selecciona un comercio para asignarlo a este usuario.',
+    noMerchant: 'Sin comercio asignado',
+    empty: 'Aún no hay usuarios creados.',
+    roles: {
+      SUPER_ADMIN: 'Super admin',
+      MERCHANT_ADMIN: 'Admin de comercio'
+    }
   },
   demoRequests: {
     title: 'Solicitudes de demo',

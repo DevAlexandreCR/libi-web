@@ -25,6 +25,9 @@ export interface User {
   email: string
   role: UserRole
   merchantId: string | null
+  merchant?: { id: string; name: string; slug: string } | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Merchant {

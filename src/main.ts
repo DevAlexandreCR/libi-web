@@ -32,6 +32,7 @@ import {
   faTrash,
   faUpload,
   faUser,
+  faUserPlus,
   faUsers,
   faUtensils,
   faEye
@@ -76,6 +77,7 @@ library.add(
   faUpload,
   faTrash,
   faUser,
+  faUserPlus,
   faUsers,
   faUtensils,
   faEye,

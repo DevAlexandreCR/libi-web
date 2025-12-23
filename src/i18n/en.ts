@@ -16,6 +16,8 @@ const en = {
     view: 'View',
     back: 'Back',
     name: 'Name',
+    role: 'Role',
+    merchant: 'Merchant',
     search: 'Search',
     filters: 'Filters',
     status: 'Status',
@@ -37,6 +39,7 @@ const en = {
   },
   navigation: {
     overview: 'Overview',
+    users: 'Users',
     merchants: 'Merchants',
     whatsappLines: 'WhatsApp lines',
     demoRequests: 'Demo requests',
@@ -124,6 +127,20 @@ const en = {
     merchantFormTitle: 'Merchant details',
     whatsappLinesTitle: 'WhatsApp lines',
     whatsappLineDetail: 'Line detail'
+  },
+  users: {
+    title: 'Users & access',
+    subtitle: 'Create credentials for merchants or for the admin team.',
+    listTitle: 'Existing users',
+    createTitle: 'Create user',
+    merchantPlaceholder: 'Assign a merchant',
+    merchantRequired: 'Select a merchant to assign this user.',
+    noMerchant: 'No merchant assigned',
+    empty: 'No users created yet.',
+    roles: {
+      SUPER_ADMIN: 'Super admin',
+      MERCHANT_ADMIN: 'Merchant admin'
+    }
   },
   demoRequests: {
     title: 'Demo requests',
